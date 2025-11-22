@@ -25,6 +25,8 @@ type DraftBody = {
   projectType?: string;
   language?: string;
   deadline?: string;
+  targetWeeks?: number;
+  userId?: string;
 };
 
 export default async function handler(req: Request) {
@@ -49,9 +51,12 @@ export default async function handler(req: Request) {
     projectType,
     language,
     deadline,
+    targetWeeks,
+    userId,
   } = body;
 
   const hoursPerWeek = typeof hours === "string" ? Number(hours) : hours;
+  const targetDuration = typeof targetWeeks === "string" ? Number(targetWeeks) : targetWeeks;
   if (!topic || !level || !style || !Number.isFinite(hoursPerWeek)) {
     return json({ error: "Required: topic, level, style, hours (number)" }, 400);
   }
@@ -76,6 +81,7 @@ export default async function handler(req: Request) {
     - Current Level: ${level}
     - Learning Style: ${style} (Adapt the curriculum delivery to this)
     - Commitment: ${hoursPerWeek} hours/week
+    - Target Duration: ${targetDuration || "Flexible"} weeks
     - Budget: ${budget || "No budget constraints"} (Strictly enforce this)
     - Hardware/Device: ${deviceSpecs || "Standard Laptop"} (Ensure tools run on this)
     - Preferred Tools: ${preferredTools || "Best Industry Standard"}
@@ -84,7 +90,7 @@ export default async function handler(req: Request) {
 
     YOUR TASK:
     1. Brainstorm 10 distinct pedagogical strategies based on this profile (e.g., "The Bootcamp Sprint", "The Academic Deep Dive", "The Project-First Hackathon", "The Open Source Contributor", etc.).
-    2. Filter these 10 down to the TOP 4 strategies that specifically maximize the user's "Goal Alignment" within their "Deadline" and "Budget".
+    2. Filter these 10 down to the TOP 4 strategies that specifically maximize the user's "Goal Alignment" within their "Deadline" and "Budget", and that can realistically fit within the Target Duration (if provided).
     3. Output those top 4 strategies as a JSON array.
 
     OUTPUT FORMAT (JSON ONLY):
@@ -133,6 +139,8 @@ export default async function handler(req: Request) {
             projectType,
             language: language || topic,
             deadline,
+            targetWeeks: targetDuration,
+            userId,
           },
           strategies,
           status: "draft",

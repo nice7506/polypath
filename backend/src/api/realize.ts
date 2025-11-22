@@ -2,6 +2,7 @@
 import { Sandbox } from "@e2b/code-interpreter";
 import { GoogleGenerativeAI } from "@google/generative-ai";
 import { createClient } from "@supabase/supabase-js";
+import { AGENT_PERSONAS, type AgentPersona } from "../agents/personas.js";
 
 // --- Configuration & Types ---
 export const config = {
@@ -37,11 +38,29 @@ interface FinalRoadmap {
   weeks: RoadmapWeek[];
 }
 
+interface AgentRoadmapResult {
+  personaId: string;
+  personaName: string;
+  roadmap: FinalRoadmap;
+}
+
 const json = (data: unknown, status = 200) =>
   new Response(JSON.stringify(data), {
     status,
     headers: { "Content-Type": "application/json" },
   });
+
+type RealizeBody = {
+  roadmapId?: string;
+  strategy?: {
+    name?: string;
+    weeks?: number;
+    desc?: string;
+    [key: string]: unknown;
+  };
+  config?: any;
+};
+
 
 // --- 1. Brave Search API (Free Tier) ---
 async function searchBrave(query: string, logs: string[]): Promise<ScrapedResource[]> {
@@ -230,6 +249,135 @@ async function initSandbox(logs: string[]) {
   }
 }
 
+async function generateRoadmapForPersona(
+  persona: AgentPersona,
+  {
+    config,
+    strategy,
+    topic,
+    level,
+    targetDuration,
+    resources,
+    logs,
+  }: {
+    config: any;
+    strategy: any;
+    topic: string;
+    level: string;
+    targetDuration: number;
+    resources: ScrapedResource[];
+    logs: string[];
+  },
+): Promise<AgentRoadmapResult> {
+  const model = genAI.getGenerativeModel({ model: "gemini-2.5-pro" });
+
+  try {
+    logs.push(`> [Agent: ${persona.name}] Generating roadmap...`);
+
+    const prompt = `
+You are acting as the following curriculum agent:
+
+AGENT PERSONA:
+- Name: ${persona.name}
+- Role: ${persona.role}
+- Style: ${persona.style}
+- Emphasis: ${persona.emphasis}
+
+Your job, as this persona, is to produce a concrete, resource-backed roadmap.
+
+LEARNER PROFILE:
+- Primary Goal: ${config?.goalAlignment || "General Upskilling"}
+- Topic / Stack: ${config?.language || topic}
+- Current Level: ${level}
+- Preferred Style(s): ${config?.style || "Any"}
+- Weekly Commitment: ${config?.hours || "Not specified"} hours/week
+- Target Duration: ${targetDuration} weeks
+- Budget: ${config?.budget || "Unspecified"} (respect this)
+- Hardware / Device: ${config?.deviceSpecs || "Standard laptop"} (avoid tools that won't run here)
+- Preferred Tools: ${config?.preferredTools || "Any popular tools"}
+- Desired Project Type: ${config?.projectType || "Portfolio-ready application"}
+- Hard Deadline: ${config?.deadline || "Flexible / none"}
+
+SELECTED STRATEGY (chosen earlier in the flow):
+- Strategy Name: ${strategy.name}
+- Strategy Description: ${strategy.desc}
+- Strategy Weeks: ${strategy.weeks || "Not specified"}
+
+SCRAPED RESOURCES (web search results you may use):
+${JSON.stringify(resources.slice(0, 15), null, 2)}
+
+PERSONA-SPECIFIC GUIDANCE:
+- As ${persona.name}, you should especially favor resources that match this emphasis: ${persona.emphasis}.
+- You may ignore scraped resources that don't fit this emphasis or the user's constraints.
+
+INSTRUCTIONS:
+1. Create a JSON roadmap with exactly ${targetDuration} weeks.
+2. For each week, define:
+   - "focus": a clear theme or milestone.
+   - "goals": 2–4 concise learner goals.
+   - "resources": 1–3 resources that help achieve those goals.
+3. PRIORITIZE the provided scraped resources. If a scraped resource fits a week, use it and set "type" accurately.
+4. Avoid search-result URLs (Google/YouTube search pages). Prefer direct content URLs only.
+5. Respect budget and hardware constraints when choosing tools and resources.
+6. If you do not see a good URL for a topic in SCRAPED RESOURCES, you may omit the resource instead of inventing a search URL.
+
+OUTPUT JSON FORMAT (NO prose, NO markdown):
+{
+  "title": "string",
+  "summary": "string",
+  "weeks": [
+    {
+      "week": number,
+      "focus": "string",
+      "goals": ["string", "string"],
+      "resources": [
+        { "type": "video" | "article" | "project" | "course", "title": "string", "url": "string", "summary": "string" }
+      ]
+    }
+  ]
+}
+`.trim();
+
+    const result = await model.generateContent({
+      contents: [{ role: "user", parts: [{ text: prompt }] }],
+      generationConfig: { responseMimeType: "application/json" },
+    });
+
+    const raw = result.response.text();
+    const parsed = JSON.parse(raw) as FinalRoadmap;
+
+    if (!parsed || !Array.isArray(parsed.weeks)) {
+      throw new Error("Persona roadmap JSON missing weeks.");
+    }
+
+    logs.push(`> [Agent: ${persona.name}] Roadmap ready with ${parsed.weeks.length} weeks.`);
+
+    return {
+      personaId: persona.id,
+      personaName: persona.name,
+      roadmap: parsed,
+    };
+  } catch (error: any) {
+    logs.push(`❌ [Agent: ${persona.name}] failed: ${error?.message || error}`);
+    const fallback: FinalRoadmap = {
+      title: `${persona.name} – ${config?.topic || topic} Roadmap`,
+      summary: strategy.desc || `Fallback roadmap created by ${persona.name}.`,
+      weeks: Array.from({ length: targetDuration }).map((_, i) => ({
+        week: i + 1,
+        focus: `Week ${i + 1}`,
+        goals: ["Learn core concepts"],
+        resources: [],
+      })),
+    };
+
+    return {
+      personaId: persona.id,
+      personaName: persona.name,
+      roadmap: fallback,
+    };
+  }
+}
+
 // --- Main Handler ---
 export default async function handler(req: Request) {
   if (req.method !== "POST") return new Response("Method Not Allowed", { status: 405 });
@@ -241,22 +389,31 @@ export default async function handler(req: Request) {
     return json({ error: "Invalid JSON" }, 400);
   }
 
-  const { roadmapId, strategy } = body;
+  const { roadmapId, strategy, config: configFromBody } = body as RealizeBody;
   if (!roadmapId || !strategy) return json({ error: "Missing required fields" }, 400);
 
   const logs: string[] = [];
   logs.push(`> Strategy Selected: ${strategy.name}`);
 
   // 1. Retrieve Config (Topic/Level)
-  let topic = "Programming";
-  let level = "Beginner";
-  try {
-    const { data } = await supabase.from("roadmaps").select("config").eq("id", roadmapId).single();
-    if (data?.config) {
-      topic = data.config.topic || topic;
-      level = data.config.level || level;
+  let config: any = configFromBody || null;
+  let topic = config?.topic || "Programming";
+  let level = config?.level || "Beginner";
+  const targetDuration = (config?.targetWeeks && Number(config.targetWeeks)) || (strategy.weeks && Number(strategy.weeks)) || 4;
+
+  // If config not provided in the request body, fall back to Supabase.
+  if (!config) {
+    try {
+      const { data } = await supabase.from("roadmaps").select("config").eq("id", roadmapId).single();
+      if (data?.config) {
+        config = data.config;
+        topic = config.topic || topic;
+        level = config.level || level;
+      }
+    } catch {
+      // ignore; we'll proceed with default topic/level
     }
-  } catch { /* ignore */ }
+  }
 
   // 2. PARALLEL EXECUTION: Run all external calls at once
   // We use allSettled so one failure doesn't stop the others
@@ -282,71 +439,43 @@ export default async function handler(req: Request) {
   const uniqueResources = Array.from(new Map(allResources.map(item => [item.url, item])).values());
   logs.push(`> Aggregated ${uniqueResources.length} unique resources.`);
 
-  // 4. Generate Roadmap via Gemini
-  let finalRoadmap: FinalRoadmap | null = null;
+  // 4. Multi-agent Gemini roadmaps (four personas)
+  let agentRoadmaps: AgentRoadmapResult[] = [];
   try {
-    const model = genAI.getGenerativeModel({ model: "gemini-2.5-pro" });
-    
-    const prompt = `
-      You are a Senior Curriculum Architect.
-      Create a ${strategy.weeks || 4}-week learning roadmap for "${topic}" (${level}).
-      
-      STRATEGY CONTEXT:
-      Name: ${strategy.name}
-      Description: ${strategy.desc}
+    agentRoadmaps = await Promise.all(
+      AGENT_PERSONAS.map((persona) =>
+        generateRoadmapForPersona(persona, {
+          config,
+          strategy,
+          topic,
+          level,
+          targetDuration,
+          resources: uniqueResources,
+          logs,
+        }),
+      ),
+    );
+  } catch (err: any) {
+    logs.push(`❌ Multi-agent generation error: ${err?.message || err}`);
+  }
 
-      AVAILABLE RESOURCES (Scraped from Web):
-      ${JSON.stringify(uniqueResources.slice(0, 15), null, 2)}
-
-      INSTRUCTIONS:
-      1. Create a JSON roadmap with exactly ${strategy.weeks || 4} weeks.
-      2. For each week, assign specific goals and mapped resources.
-      3. PRIORITIZE the provided scraped resources. If a scraped resource fits a week, use it and set the 'type' accurately.
-      4. If no scraped resource fits a specific topic, generate a high-quality placeholder (e.g., "Search for X on YouTube").
-      
-      OUTPUT JSON FORMAT:
-      {
-        "title": "string",
-        "summary": "string",
-        "weeks": [
-          {
-            "week": number,
-            "focus": "string",
-            "goals": ["string", "string"],
-            "resources": [
-              { "type": "video" | "article" | "project", "title": "string", "url": "string", "summary": "string" }
-            ]
-          }
-        ]
-      }
-    `;
-
-    const result = await model.generateContent({
-      contents: [{ role: "user", parts: [{ text: prompt }] }],
-      generationConfig: { responseMimeType: "application/json" },
-    });
-
-    finalRoadmap = JSON.parse(result.response.text());
-    logs.push("> Gemini successfully constructed roadmap.");
-
-  } catch (error: any) {
-    logs.push(`❌ Gemini Generation Failed: ${error.message}`);
-    // Fallback basic roadmap
-    finalRoadmap = {
+  const finalRoadmap: FinalRoadmap =
+    agentRoadmaps[0]?.roadmap || {
       title: `${topic} Roadmap`,
       summary: strategy.desc,
-      weeks: Array.from({ length: strategy.weeks || 4 }).map((_, i) => ({
+      weeks: Array.from({ length: targetDuration }).map((_, i) => ({
         week: i + 1,
         focus: `Week ${i + 1}`,
         goals: ["Learn core concepts"],
-        resources: []
-      }))
+        resources: [],
+      })),
     };
-  }
 
   // 5. Update Supabase
   const sandboxId = sandboxResult.status === "fulfilled" ? sandboxResult.value.sandboxId : null;
   const dockerOk = sandboxResult.status === "fulfilled" ? sandboxResult.value.dockerOk : false;
+
+  const selectedAgentId = agentRoadmaps[0]?.personaId || null;
 
   await supabase
     .from("roadmaps")
@@ -356,6 +485,8 @@ export default async function handler(req: Request) {
       logs,
       status: "ready",
       final_roadmap: finalRoadmap,
+      agent_roadmaps: agentRoadmaps,
+      selected_agent_id: selectedAgentId,
     })
     .eq("id", roadmapId);
 
@@ -364,6 +495,7 @@ export default async function handler(req: Request) {
     sandboxId,
     dockerOk,
     logs,
-    final_roadmap: finalRoadmap
+    final_roadmap: finalRoadmap,
+    agent_roadmaps: agentRoadmaps,
   });
 }

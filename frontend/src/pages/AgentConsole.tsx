@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { Terminal, Cpu, ShieldCheck, Wifi, Activity, Server, CheckCircle2, Loader2 } from 'lucide-react'
+import { Terminal, ShieldCheck, Wifi, Activity, Server, CheckCircle2, Loader2 } from 'lucide-react'
 
 import { useRoadmap } from '@/context/RoadmapContext'
 

@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+
 
 // --- ASSETS & STYLES ---
 // Background Noise Pattern (Data URI)
@@ -65,7 +65,6 @@ export default function LandingPage() {
         ::-webkit-scrollbar-thumb { background: #1e293b; border-radius: 4px; }
         ::-webkit-scrollbar-thumb:hover { background: #06b6d4; }
       `}</style>
-
       {/* --- NAVBAR --- */}
       <nav className="fixed top-0 w-full z-50 border-b border-white/5 bg-[#020617]/80 backdrop-blur-md transition-all duration-300">
         <div className="max-w-7xl mx-auto px-6 h-16 flex items-center justify-between">
@@ -84,10 +83,18 @@ export default function LandingPage() {
 
           {/* CTA */}
           <div className="flex items-center gap-4">
-            <button className="text-sm font-medium text-white hover:text-cyan-400 hidden sm:block transition-colors">Sign In</button>
-            <button className="h-9 px-5 rounded-full bg-white text-slate-950 text-sm font-bold hover:bg-cyan-50 transition-all hover:shadow-[0_0_15px_rgba(255,255,255,0.3)] transform hover:scale-105">
+            <a
+              href="/auth"
+              className="text-sm font-medium text-white hover:text-cyan-400 hidden sm:block transition-colors"
+            >
+              Sign In
+            </a>
+            <a
+              href="/start"
+              className="inline-flex h-9 items-center justify-center rounded-full bg-white px-5 text-sm font-bold text-slate-950 hover:bg-cyan-50 transition-all hover:shadow-[0_0_15px_rgba(255,255,255,0.3)] transform hover:scale-105"
+            >
               Get Started
-            </button>
+            </a>
           </div>
         </div>
       </nav>

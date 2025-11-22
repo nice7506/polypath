@@ -4,9 +4,9 @@ import { useNavigate } from 'react-router-dom'
 
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
-import { Slider } from '@/components/ui/slider'
 import { useRoadmap } from '@/context/RoadmapContext'
 import { draftStrategies } from '@/lib/api'
+import { useAuthStore } from '@/store/authStore'
 
 // --- ASSETS & STYLES ---
 const bgNoise = `url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)' opacity='0.05'/%3E%3C/svg%3E")`
@@ -96,12 +96,14 @@ const ConfigCard = ({
 export default function Configuration() {
   const navigate = useNavigate()
   const { setConfig, setStrategies, setRoadmapId } = useRoadmap()
+  const { user } = useAuthStore()
   
   // State
   const [topic, setTopic] = useState('')
   const [level, setLevel] = useState<'Beginner' | 'Intermediate' | 'Advanced'>('Beginner')
   const [style, setStyle] = useState<string[]>(['Interactive'])
   const [hours, setHours] = useState<number[]>([20])
+  const [targetWeeks, setTargetWeeks] = useState<number>(12)
   const [goalAlignment, setGoalAlignment] = useState('')
   const [budget, setBudget] = useState('')
   const [deviceSpecs, setDeviceSpecs] = useState('')
@@ -129,6 +131,7 @@ export default function Configuration() {
         level,
         style: style.join(', '),
         hours: hours[0],
+        targetWeeks,
         goalAlignment,
         budget,
         deviceSpecs,
@@ -136,6 +139,7 @@ export default function Configuration() {
         projectType,
         language: topic, // Defaulting language to topic if not specified separately
         deadline,
+        userId: user?.id,
       }
       const data = await draftStrategies(payload)
       setConfig(payload)
@@ -290,13 +294,17 @@ export default function Configuration() {
                        <span className="text-slate-400 flex items-center gap-1"><Clock className="w-3 h-3"/> Time/Week</span>
                        <span className="text-cyan-400 font-mono bg-cyan-950/30 px-2 py-0.5 rounded border border-cyan-500/20">{hours[0]}h</span>
                     </div>
-                    <Slider 
-                      defaultValue={hours} 
-                      onValueChange={setHours} 
-                      max={60} 
-                      step={5} 
-                      className="py-2"
-                    />
+                    <select
+                      className="w-full rounded-md border border-white/10 bg-black/30 px-3 py-2 text-xs text-slate-200 focus:outline-none focus:ring-2 focus:ring-cyan-500/40 focus:border-cyan-500/60"
+                      value={hours[0]}
+                      onChange={(e) => setHours([Number(e.target.value)])}
+                    >
+                      {[5, 10, 15, 20, 25, 30, 40].map((h) => (
+                        <option key={h} value={h}>
+                          {h} hours / week
+                        </option>
+                      ))}
+                    </select>
                   </div>
 
                   {/* Budget */}
@@ -324,15 +332,46 @@ export default function Configuration() {
                       />
                   </div>
 
+                  {/* Target Duration (Weeks) */}
+                  <div className="space-y-2">
+                     <label className="text-xs text-slate-400 flex items-center gap-1">
+                       <Calendar className="w-3 h-3"/> Target Duration
+                     </label>
+                     <select
+                       className="w-full rounded-md border border-white/10 bg-black/30 px-3 py-2 text-xs text-slate-200 focus:outline-none focus:ring-2 focus:ring-cyan-500/40 focus:border-cyan-500/60"
+                       value={targetWeeks}
+                       onChange={(e) => setTargetWeeks(Number(e.target.value))}
+                     >
+                       {[4, 8, 12, 16, 24].map((w) => (
+                         <option key={w} value={w}>
+                           {w} weeks
+                         </option>
+                       ))}
+                     </select>
+                  </div>
+
                   {/* Device */}
                   <div className="space-y-2">
                      <label className="text-xs text-slate-400 flex items-center gap-1"><Cpu className="w-3 h-3"/> Hardware</label>
-                     <Input
-                        placeholder="e.g. M1 Mac 16GB"
-                        className="border-white/10 bg-black/20 text-sm"
+                     <select
+                        className="w-full rounded-md border border-white/10 bg-black/30 px-3 py-2 text-xs text-slate-200 focus:outline-none focus:ring-2 focus:ring-cyan-500/40 focus:border-cyan-500/60"
                         value={deviceSpecs}
                         onChange={(e) => setDeviceSpecs(e.target.value)}
-                      />
+                      >
+                        <option value="">Select hardware profile</option>
+                        <option value="High-end laptop (16GB+ RAM, dedicated GPU)">
+                          High-end laptop (16GB+ RAM, GPU)
+                        </option>
+                        <option value="Standard laptop (8–16GB RAM, modern CPU)">
+                          Standard laptop (8–16GB RAM)
+                        </option>
+                        <option value="Low-spec laptop / Chromebook (≤8GB RAM)">
+                          Low-spec laptop / Chromebook (≤8GB RAM)
+                        </option>
+                        <option value="Cloud-only environment (no local dev tools)">
+                          Cloud-only (no local dev tools)
+                        </option>
+                      </select>
                   </div>
                 </div>
              </div>

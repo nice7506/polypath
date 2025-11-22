@@ -1,4 +1,4 @@
-import { useEffect } from 'react'
+import { useEffect, useMemo } from 'react'
 import { useNavigate } from 'react-router-dom'
 import {
   Pencil,
@@ -20,7 +20,16 @@ import { useRoadmap } from '@/context/RoadmapContext'
 
 export default function Roadmap() {
   const navigate = useNavigate()
-  const { selectedStrategy, sandboxId, roadmap, config } = useRoadmap()
+  const {
+    selectedStrategy,
+    sandboxId,
+    roadmap,
+    config,
+    agentRoadmaps,
+    selectedAgentId,
+    setRoadmap,
+    setSelectedAgentId,
+  } = useRoadmap()
 
   useEffect(() => {
     if (!selectedStrategy) {
@@ -28,7 +37,22 @@ export default function Roadmap() {
     }
   }, [selectedStrategy, navigate])
 
-  const weeks = roadmap?.weeks || []
+  const activeAgentId = selectedAgentId || (agentRoadmaps?.[0]?.personaId as string | undefined) || null
+
+  const activeAgent = useMemo(
+    () => (agentRoadmaps || []).find((a: any) => a.personaId === activeAgentId) || agentRoadmaps?.[0] || null,
+    [agentRoadmaps, activeAgentId],
+  )
+
+  const currentRoadmap = (activeAgent?.roadmap as any) || roadmap
+  const weeks = currentRoadmap?.weeks || []
+
+  const handlePersonaClick = (personaId: string, agent: any) => {
+    setSelectedAgentId(personaId)
+    if (agent?.roadmap) {
+      setRoadmap(agent.roadmap)
+    }
+  }
   
   const getResourceIcon = (type: string) => {
     const t = type.toLowerCase()
@@ -69,17 +93,18 @@ export default function Roadmap() {
                 )}
               </div>
               <h1 className="text-3xl font-bold tracking-tight md:text-5xl text-white">
-                {roadmap?.title || selectedStrategy?.name || 'Your Learning Path'}
+                {currentRoadmap?.title || selectedStrategy?.name || 'Your Learning Path'}
               </h1>
               <p className="mt-4 max-w-2xl text-base md:text-lg text-gray-400 leading-relaxed">
-                {roadmap?.summary || "A personalized curriculum designed to take you from concept to mastery, tailored to your hardware and schedule."}
+                {currentRoadmap?.summary ||
+                  'A personalized curriculum designed to take you from concept to mastery, tailored to your hardware and schedule.'}
               </p>
             </div>
             
             <div className="flex gap-4 rounded-xl bg-white/5 p-4 border border-white/10 md:flex-col md:items-end md:gap-2 md:bg-transparent md:border-0 md:p-0">
-               <div className="flex items-center gap-2 text-sm text-gray-300 md:text-gray-400">
+              <div className="flex items-center gap-2 text-sm text-gray-300 md:text-gray-400">
                   <Calendar className="h-4 w-4 text-cyan-400" />
-                  <span>{selectedStrategy?.weeks || 4} Weeks</span>
+                  <span>{config?.targetWeeks || currentRoadmap?.weeks?.length || selectedStrategy?.weeks || 4} Weeks</span>
                </div>
                <div className="flex items-center gap-2 text-sm text-gray-300 md:text-gray-400">
                   <Cpu className="h-4 w-4 text-purple-400" />
@@ -89,6 +114,50 @@ export default function Roadmap() {
           </div>
         </div>
 
+        {/* Persona Tabs */}
+        {agentRoadmaps && agentRoadmaps.length > 0 && (
+          <div className="mb-10 flex flex-wrap gap-3">
+            {agentRoadmaps.map((agent: any) => {
+              const active = agent.personaId === activeAgentId
+              return (
+                <button
+                  key={agent.personaId}
+                  type="button"
+                  onClick={() => handlePersonaClick(agent.personaId, agent)}
+                  className={`flex items-center gap-3 rounded-xl border px-3 py-2 text-xs md:text-sm transition-all ${
+                    active
+                      ? 'border-cyan-500 bg-cyan-500/10 text-cyan-200 shadow-md shadow-cyan-500/20'
+                      : 'border-white/10 bg-white/5 text-slate-300 hover:border-cyan-500/40 hover:bg-cyan-500/5'
+                  }`}
+                >
+                  <div className="h-8 w-8 overflow-hidden rounded-lg bg-slate-900/80">
+                    {/* Generic persona image via public source */}
+                    <img
+  src={`https://robohash.org/${encodeURIComponent(agent.personaName || agent.personaId)}.png?set=set1&size=200x200`}
+  alt={agent.personaName || agent.personaId}
+  className="h-full w-full object-cover"
+  loading="lazy"
+/>
+
+                  </div>
+                  <div className="text-left">
+                    <div className="font-semibold">{agent.personaName}</div>
+                    <div className="text-[10px] text-slate-400">
+                      {agent.personaId === 'systems-architect' && 'Structured, fundamentals-first roadmap.'}
+                      {agent.personaId === 'project-hacker' && 'Project-heavy, build-first roadmap.'}
+                      {agent.personaId === 'research-mentor' && 'Deep theory & high-signal explainers.'}
+                      {agent.personaId === 'constraints-optimizer' && 'Optimized for time, budget & hardware.'}
+                      {!['systems-architect', 'project-hacker', 'research-mentor', 'constraints-optimizer'].includes(
+                        agent.personaId,
+                      ) && 'Alternative agentic route.'}
+                    </div>
+                  </div>
+                </button>
+              )
+            })}
+          </div>
+        )}
+
         {/* --- FULLSCREEN CAPABLE FLOW CHART --- */}
         <div className="mb-16">
             <div className="mb-4 flex items-center gap-2 text-sm font-semibold tracking-widest text-gray-400 uppercase">
@@ -97,7 +166,7 @@ export default function Roadmap() {
             {/* We just render the component; it handles its own styling/fullscreen */}
             <div className="rounded-2xl border border-white/10 shadow-2xl overflow-hidden">
                 <RoadmapFlow 
-                    title={roadmap?.title || selectedStrategy?.name || 'Roadmap'} 
+                    title={currentRoadmap?.title || selectedStrategy?.name || 'Roadmap'} 
                     weeks={weeks} 
                 />
             </div>

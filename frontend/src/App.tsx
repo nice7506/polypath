@@ -5,8 +5,12 @@ import Configuration from './pages/Configuration'
 import Landing from './pages/landingPage'
 import Roadmap from './pages/Roadmap'
 import StrategyDeck from './pages/StrategyDeck'
+import SharedRoadmap from './pages/SharedRoadmap'
+import AuthPage from './pages/Auth'
+import Dashboard from './pages/Dashboard'
 import { RoadmapProvider } from './context/RoadmapContext'
 import { AppLayout } from './components/AppLayout'
+import { ProtectedRoute } from './components/ProtectedRoute'
 
 function App() {
   return (
@@ -14,12 +18,23 @@ function App() {
       <RoadmapProvider>
         <Routes>
           <Route path="/" element={<Landing />} />
+          <Route path="/auth" element={<AuthPage />} />
           <Route
             path="/start"
             element={
               <AppLayout>
                 <Configuration />
               </AppLayout>
+            }
+          />
+          <Route
+            path="/dashboard"
+            element={
+              <ProtectedRoute>
+                <AppLayout>
+                  <Dashboard />
+                </AppLayout>
+              </ProtectedRoute>
             }
           />
           <Route
@@ -43,6 +58,14 @@ function App() {
             element={
               <AppLayout>
                 <Roadmap />
+              </AppLayout>
+            }
+          />
+          <Route
+            path="/roadmap/:id"
+            element={
+              <AppLayout>
+                <SharedRoadmap />
               </AppLayout>
             }
           />

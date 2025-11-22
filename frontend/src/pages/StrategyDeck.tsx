@@ -19,6 +19,8 @@ export default function StrategyDeck() {
     setRoadmap,
     setIsRealizing,
     isRealizing,
+    setAgentRoadmaps,
+    setSelectedAgentId,
   } = useRoadmap()
   
   const [loading, setLoading] = useState<string | null>(null)
@@ -63,11 +65,18 @@ export default function StrategyDeck() {
         simIndex += 1
       }, 1200)
 
-      const data = await realizeSandbox({ roadmapId, strategy })
+      const data = await realizeSandbox({ roadmapId, strategy, config })
       if (simTimer) clearInterval(simTimer)
 
       if (data.logs) setLogs(data.logs)
-      if (data.final_roadmap) setRoadmap(data.final_roadmap)
+      if (data.agent_roadmaps && data.agent_roadmaps.length) {
+        const primary = data.agent_roadmaps[0]
+        setRoadmap(primary.roadmap)
+        setAgentRoadmaps(data.agent_roadmaps)
+        setSelectedAgentId(primary.personaId || null)
+      } else if (data.final_roadmap) {
+        setRoadmap(data.final_roadmap)
+      }
       setSandboxId(data.sandboxId)
     } catch (err: any) {
       setError(err.message || 'Failed to initialize sandbox')
