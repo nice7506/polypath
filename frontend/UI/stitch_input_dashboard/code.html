@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>PolyPath - Stop Guessing. Start Learning.</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700;900&amp;family=Fira+Code:wght@400;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script>
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#2547f4",
+                        "background-light": "#f5f6f8",
+                        "background-dark": "#020617",
+                    },
+                    fontFamily: {
+                        "display": ["Inter", "sans-serif"],
+                        "mono": ["Fira Code", "monospace"]
+                    },
+                    borderRadius: {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                },
+            },
+        }
+    </script>
+<style>
+        body {
+            background-color: #020617;}
+        .grid-pattern {
+            background-image: linear-gradient(rgba(255, 255, 255, 0.05) 1px, transparent 1px), linear-gradient(90deg, rgba(255, 255, 255, 0.05) 1px, transparent 1px);
+            background-size: 2rem 2rem;
+            background-position: center center;
+            position: absolute;
+            inset: 0;
+            z-index: 0;
+            opacity: 0.5;
+        }
+        .glow-effect {
+            position: absolute;
+            inset: 0;
+            z-index: 0;
+            opacity: 0.2;
+            background-image: radial-gradient(circle at 25% 25%, #2547f4 0%, transparent 30%), radial-gradient(circle at 75% 75%, #a855f7 0%, transparent 30%);
+        }
+        .terminal-code>span {
+            display: block;
+        }
+        .terminal-code .text-emerald-400 {
+            color: #34d399;
+        }
+        .terminal-code .text-purple-400 {
+            color: #c084fc;
+        }
+        .terminal-code .text-blue-400 {
+            color: #60a5fa;
+        }
+    </style>
+</head>
+<body class="bg-background-dark font-display text-white antialiased">
+<div class="relative min-h-screen w-full flex-col overflow-x-hidden">
+<div class="grid-pattern"></div>
+<div class="glow-effect"></div>
+<div class="relative z-10">
+<header class="mx-auto w-full max-w-7xl px-4 sm:px-6 lg:px-8">
+<div class="flex items-center justify-between py-6">
+<div class="flex items-center gap-3">
+<div class="h-8 w-8 text-white">
+<svg fill="currentColor" viewBox="0 0 48 48" xmlns="http://www.w3.org/2000/svg">
+<path clip-rule="evenodd" d="M12.0799 24L4 19.2479L9.95537 8.75216L18.04 13.4961L18.0446 4H29.9554L29.96 13.4961L38.0446 8.75216L44 19.2479L35.92 24L44 28.7521L38.0446 39.2479L29.96 34.5039L29.9554 44H18.0446L18.04 34.5039L9.95537 39.2479L4 28.7521L12.0799 24Z" fill-rule="evenodd"></path>
+</svg>
+</div>
+<h2 class="text-xl font-bold tracking-tight">PolyPath</h2>
+</div>
+<nav class="hidden items-center gap-8 md:flex">
+<a class="text-sm font-medium text-slate-300 transition-colors hover:text-white" href="#">Features</a>
+<a class="text-sm font-medium text-slate-300 transition-colors hover:text-white" href="#">Pricing</a>
+<a class="text-sm font-medium text-slate-300 transition-colors hover:text-white" href="#">Docs</a>
+<a class="text-sm font-medium text-slate-300 transition-colors hover:text-white" href="#">Blog</a>
+</nav>
+<a class="inline-flex h-10 items-center justify-center rounded-lg bg-primary px-6 text-sm font-bold text-white transition-colors hover:bg-blue-600" href="#">
+                        Launch Console
+                    </a>
+</div>
+</header>
+<main class="relative z-10 flex flex-1 flex-col">
+<section class="mx-auto w-full max-w-7xl px-4 py-20 sm:px-6 lg:px-8 lg:py-32">
+<div class="grid grid-cols-1 items-center gap-12 lg:grid-cols-2 lg:gap-16">
+<div class="flex flex-col gap-8">
+<div class="flex flex-col gap-4">
+<h1 class="text-5xl font-black tracking-tighter sm:text-6xl md:text-7xl bg-gradient-to-r from-blue-400 via-purple-400 to-emerald-400 bg-clip-text text-transparent">Stop Guessing. Start Learning.</h1>
+<p class="max-w-xl text-lg text-slate-300">Generate hyper-personalized curriculums powered by Autonomous Agents, E2B Sandboxes, and Live Web Verification.</p>
+</div>
+<div class="flex">
+<a class="group inline-flex h-12 items-center justify-center gap-2 overflow-hidden rounded-lg bg-primary px-6 text-base font-bold text-white shadow-lg shadow-blue-500/20 transition-all duration-200 ease-in-out hover:scale-105 hover:shadow-blue-500/40 active:scale-95" href="#">
+<span>Draft Your Roadmap</span>
+<span class="material-symbols-outlined transition-transform duration-300 group-hover:translate-x-1">arrow_right_alt</span>
+</a>
+</div>
+</div>
+<div class="flex items-center justify-center lg:justify-end">
+<div class="w-full max-w-2xl rounded-xl border border-slate-700/80 bg-slate-900/60 p-4 shadow-2xl shadow-black/50 backdrop-blur-sm">
+<div class="flex h-8 items-center gap-2 border-b border-slate-700/80 px-4 pb-4">
+<div class="h-3 w-3 rounded-full bg-red-500"></div>
+<div class="h-3 w-3 rounded-full bg-yellow-500"></div>
+<div class="h-3 w-3 rounded-full bg-green-500"></div>
+</div>
+<div class="terminal-code font-mono text-sm text-slate-300 p-4 min-h-[192px]">
+<span><span class="text-emerald-400 mr-2">&gt;</span>user_profile detected: { topic: <span class="text-purple-400">"Rust"</span>, level: <span class="text-purple-400">"Advanced"</span> }</span>
+<span><span class="text-emerald-400 mr-2">&gt;</span>spawning_agent: E2B_Sandbox_01... <span class="text-blue-400">[OK]</span></span>
+<span><span class="text-emerald-400 mr-2">&gt;</span>docker_run: ghcr.io/puppeteer... <span class="text-blue-400">[OK]</span></span>
+<span><span class="text-emerald-400 mr-2">&gt;</span>compiling_roadmap...</span>
+<span><span aria-hidden="true" class="inline-block h-4 w-2 animate-pulse bg-emerald-400 ml-2"></span></span>
+</div>
+</div>
+</div>
+</div>
+</section>
+<section class="mx-auto w-full max-w-7xl px-4 py-20 sm:px-6 lg:px-8">
+<div class="flex flex-col items-center gap-12">
+<div class="flex flex-col items-center gap-4 text-center">
+<h2 class="text-4xl font-black tracking-tighter sm:text-5xl">10-Point Precision</h2>
+<p class="max-w-2xl text-lg text-slate-300">PolyPath analyzes ten critical data points to construct a curriculum that is not just personalized, but predictive of your learning trajectory and career goals.</p>
+</div>
+<div class="grid grid-cols-2 gap-3 font-mono text-sm md:grid-cols-3 lg:grid-cols-5">
+<div class="rounded-lg border border-slate-700/80 bg-slate-900/60 p-4 text-center backdrop-blur-sm">User Skill Level</div>
+<div class="rounded-lg border border-slate-700/80 bg-slate-900/60 p-4 text-center backdrop-blur-sm">Learning Velocity</div>
+<div class="rounded-lg border border-slate-700/80 bg-slate-900/60 p-4 text-center backdrop-blur-sm">Knowledge Gaps</div>
+<div class="rounded-lg border border-slate-700/80 bg-slate-900/60 p-4 text-center backdrop-blur-sm">Career Objectives</div>
+<div class="rounded-lg border border-slate-700/80 bg-slate-900/60 p-4 text-center backdrop-blur-sm">Project Repos</div>
+<div class="rounded-lg border border-slate-700/80 bg-slate-900/60 p-4 text-center backdrop-blur-sm">API Dependencies</div>
+<div class="rounded-lg border border-slate-700/80 bg-slate-900/60 p-4 text-center backdrop-blur-sm">Market Demand</div>
+<div class="rounded-lg border border-slate-700/80 bg-slate-900/60 p-4 text-center backdrop-blur-sm">Resource Type</div>
+<div class="rounded-lg border border-slate-700/80 bg-slate-900/60 p-4 text-center backdrop-blur-sm">Time Commitment</div>
+<div class="rounded-lg border border-slate-700/80 bg-slate-900/60 p-4 text-center backdrop-blur-sm">Conceptual Overlap</div>
+</div>
+</div>
+</section>
+<section class="mx-auto w-full max-w-7xl px-4 py-20 sm:px-6 lg:px-8">
+<div class="flex flex-col items-center gap-16">
+<div class="flex flex-col items-center gap-4 text-center">
+<h2 class="text-4xl font-black tracking-tighter sm:text-5xl">True Agentic Learning</h2>
+<p class="max-w-3xl text-lg text-slate-300">We don't just use APIs. PolyPath deploys fully autonomous agents into secure, sandboxed environments to build, test, and validate every step of your learning path.</p>
+</div>
+<div class="grid w-full grid-cols-1 items-center gap-12 lg:grid-cols-3 lg:gap-8">
+<div class="flex flex-col items-center gap-4 text-center lg:items-end lg:text-right">
+<h3 class="text-xl font-bold text-emerald-400">E2B Sandboxes</h3>
+<p class="text-slate-300">Secure, cloud-based environments where our agents can run code, install dependencies, and interact with a live filesystem, ensuring real-world applicability.</p>
+</div>
+<div class="relative flex h-64 w-64 items-center justify-center justify-self-center rounded-full border border-slate-700/80 bg-slate-900/60 backdrop-blur-sm">
+<div class="absolute inset-0 z-0 animate-spin-slow rounded-full border-2 border-dashed border-blue-500/50"></div>
+<div class="absolute inset-4 z-0 animate-spin-reverse-slow rounded-full border-2 border-dashed border-purple-500/50"></div>
+<div class="h-16 w-16 text-white">
+<svg fill="currentColor" viewBox="0 0 48 48" xmlns="http://www.w3.org/2000/svg">
+<path clip-rule="evenodd" d="M12.0799 24L4 19.2479L9.95537 8.75216L18.04 13.4961L18.0446 4H29.9554L29.96 13.4961L38.0446 8.75216L44 19.2479L35.92 24L44 28.7521L38.0446 39.2479L29.96 34.5039L29.9554 44H18.0446L18.04 34.5039L9.95537 39.2479L4 28.7521L12.0799 24Z" fill-rule="evenodd"></path>
+</svg>
+</div>
+</div>
+<div class="flex flex-col items-center gap-4 text-center lg:items-start lg:text-left">
+<h3 class="text-xl font-bold text-purple-400">Docker &amp; Gemini RAG</h3>
+<p class="text-slate-300">Agents leverage containerization for consistency and use advanced Retrieval-Augmented Generation to synthesize information from the latest documentation and tutorials.</p>
+</div>
+</div>
+</div>
+</section>
+<section class="mx-auto w-full max-w-7xl px-4 py-20 sm:px-6 lg:px-8">
+<div class="relative overflow-hidden rounded-2xl border border-slate-700/80 bg-slate-900/60 p-12 backdrop-blur-sm">
+<div class="absolute inset-0 z-0 opacity-10" style="background-image: radial-gradient(circle at top left, #2547f4 0%, transparent 40%), radial-gradient(circle at bottom right, #a855f7 0%, transparent 40%);"></div>
+<div class="relative z-10 flex flex-col items-center gap-8 text-center">
+<h2 class="text-4xl font-black tracking-tighter sm:text-5xl">Ready to Build Your Path?</h2>
+<p class="max-w-xl text-lg text-slate-300">Stop the endless cycle of tutorial-hopping and start a structured, agent-driven learning journey today. Your expertise is waiting.</p>
+<a class="group inline-flex h-12 items-center justify-center gap-2 overflow-hidden rounded-lg bg-primary px-6 text-base font-bold text-white shadow-lg shadow-blue-500/20 transition-all duration-200 ease-in-out hover:scale-105 hover:shadow-blue-500/40 active:scale-95" href="#">
+<span>Start Learning Now</span>
+<span class="material-symbols-outlined transition-transform duration-300 group-hover:translate-x-1">arrow_right_alt</span>
+</a>
+</div>
+</div>
+</section>
+</main>
+<footer class="border-t border-slate-800 bg-slate-950/50">
+<div class="mx-auto w-full max-w-7xl px-4 py-16 sm:px-6 lg:px-8">
+<div class="grid grid-cols-1 gap-12 lg:grid-cols-4 lg:gap-8">
+<div class="flex flex-col gap-4">
+<div class="flex items-center gap-3">
+<div class="h-8 w-8 text-white">
+<svg fill="currentColor" viewBox="0 0 48 48" xmlns="http://www.w3.org/2000/svg">
+<path clip-rule="evenodd" d="M12.0799 24L4 19.2479L9.95537 8.75216L18.04 13.4961L18.0446 4H29.9554L29.96 13.4961L38.0446 8.75216L44 19.2479L35.92 24L44 28.7521L38.0446 39.2479L29.96 34.5039L29.9554 44H18.0446L18.04 34.5039L9.95537 39.2479L4 28.7521L12.0799 24Z" fill-rule="evenodd"></path>
+</svg>
+</div>
+<h2 class="text-xl font-bold tracking-tight">PolyPath</h2>
+</div>
+<p class="font-mono text-sm text-slate-400">Agentic Learning Paths for Developers.</p>
+<div class="mt-4 flex gap-4">
+</div>
+</div>
+<div class="grid grid-cols-2 gap-8 sm:grid-cols-3 lg:col-span-3">
+<div>
+<h3 class="font-bold text-white">Product</h3>
+<ul class="mt-4 space-y-3">
+<li><a class="text-sm text-slate-400 hover:text-white" href="#">Features</a></li>
+<li><a class="text-sm text-slate-400 hover:text-white" href="#">Pricing</a></li>
+<li><a class="text-sm text-slate-400 hover:text-white" href="#">Changelog</a></li>
+<li><a class="text-sm text-slate-400 hover:text-white" href="#">Roadmap</a></li>
+</ul>
+</div>
+<div>
+<h3 class="font-bold text-white">Resources</h3>
+<ul class="mt-4 space-y-3">
+<li><a class="text-sm text-slate-400 hover:text-white" href="#">Docs</a></li>
+<li><a class="text-sm text-slate-400 hover:text-white" href="#">Blog</a></li>
+<li><a class="text-sm text-slate-400 hover:text-white" href="#">API Reference</a></li>
+<li><a class="text-sm text-slate-400 hover:text-white" href="#">Case Studies</a></li>
+</ul>
+</div>
+<div>
+<h3 class="font-bold text-white">Company</h3>
+<ul class="mt-4 space-y-3">
+<li><a class="text-sm text-slate-400 hover:text-white" href="#">About Us</a></li>
+<li><a class="text-sm text-slate-400 hover:text-white" href="#">Careers</a></li>
+<li><a class="text-sm text-slate-400 hover:text-white" href="#">Contact</a></li>
+<li><a class="text-sm text-slate-400 hover:text-white" href="#">Legal</a></li>
+</ul>
+</div>
+</div>
+</div>
+<div class="mt-12 border-t border-slate-800 pt-8">
+<div class="flex flex-col items-center justify-between gap-6 sm:flex-row">
+<p class="text-sm text-slate-500">© 2024 PolyPath Inc. All rights reserved.</p>
+<p class="font-mono text-xs text-slate-500">Powered by <a class="font-bold text-slate-400 hover:text-white" href="#">Vercel</a> &amp; <a class="font-bold text-slate-400 hover:text-white" href="#">E2B</a></p>
+</div>
+</div>
+</div>
+</footer>
+</div>
+</div>
+
+</body></html>
