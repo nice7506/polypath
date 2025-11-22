@@ -32,10 +32,17 @@ async function request<T>({ path, body }: FetchOptions): Promise<T> {
 }
 
 export async function draftStrategies(payload: {
-  topic: string;
-  level: string;
-  style: string;
-  hours: number;
+  topic: string
+  level: string
+  style: string
+  hours: number
+  goalAlignment?: string
+  budget?: string
+  deviceSpecs?: string
+  preferredTools?: string
+  projectType?: string
+  language?: string
+  deadline?: string
 }) {
   return request<{ roadmapId: string; strategies: any[] }>({
     path: '/api/draft',

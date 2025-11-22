@@ -42,7 +42,7 @@ export function Sidebar() {
         })}
       </nav>
 
-      <div className="mt-auto rounded-lg border border-slate-800 bg-slate-900/60 p-4 text-xs text-slate-400">
+      <div className="mt-auto rounded-lg border border-slate-800 bg-slate-900/60 p-4 text-xs text-slate-400 mt-10">
         <div className="text-slate-200">Need help?</div>
         <div>Check logs in Console, or restart from Configure.</div>
       </div>
