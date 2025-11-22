@@ -35,13 +35,16 @@ export default function AgentConsole() {
 
   // Navigation Logic
   useEffect(() => {
-    if (!sandboxId && !isRealizing) {
-      navigate('/start') // Redirect if no active session
+    // Only kick back to /start if we truly have no active or completed run
+    if (!isRealizing && !sandboxId && logs.length === 0) {
+      navigate('/start')
     }
-  }, [sandboxId, isRealizing, navigate])
+  }, [sandboxId, isRealizing, logs.length, navigate])
 
   useEffect(() => {
-    if (sandboxId && !isRealizing && logs.length > 0) {
+    // Once realization is done and we have logs, move on to the roadmap,
+    // even if sandboxId is null (e.g., sandbox disabled but roadmap generated).
+    if (!isRealizing && logs.length > 0) {
       // Small delay to let user see the "Success" message before redirecting
       const timeout = setTimeout(() => {
         navigate('/roadmap')

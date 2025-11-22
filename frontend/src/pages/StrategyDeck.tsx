@@ -42,14 +42,21 @@ export default function StrategyDeck() {
     try {
       setSelectedStrategy(strategy)
 
-      // Simulate live logs
+      // Simulate live logs`
       const simulated = [
-        '> Connecting to E2B sandbox...',
-        '> Analyzing hardware constraints...',
-        '> Allocating cloud resources...',
-        '> Preparing Docker container...',
-        '> Installing core dependencies...',
-      ]
+  '> [System] Initializing secure E2B cloud sandbox...',
+  '> [System] Allocating isolated Linux container...',
+  '> [Agent] Spawning parallel research agents...',
+  '> [Parallel.ai] Querying verified learning entities...',
+  '> [Brave] Scanning latest documentation indices...',
+  '> [DuckDuckGo] Scraping community tutorials...',
+  '> [System] Verifying Docker installation inside sandbox...',
+  '> [System] apt-get update && apt-get install -y docker.io...',
+  '> [Search] Aggregating and de-duplicating resources...',
+  '> [AI] Cross-referencing found links with learning goals...',
+  '> [AI] Gemini 2.5 is synthesizing the final curriculum...',
+  '> [Database] Saving finalized roadmap state...',
+]
       let simIndex = 0
       simTimer = setInterval(() => {
         addLog(simulated[simIndex % simulated.length])

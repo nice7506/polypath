@@ -93,7 +93,7 @@ export default async function handler(req: Request) {
         "name": "Catchy Strategy Title",
         "weeks": Integer,
         "desc": "2-3 sentence hook explaining WHY this specific strategy fits their device/budget/goal.",
-        "demoUrl": "A plausible (fake) URL example like 'https://github.com/user/demo-project'"
+        "demoUrl": "A plausible Github URL(You can scrape the web for this) example like 'https://github.com/user/demo-project'"
       }
     ]
 
@@ -107,7 +107,7 @@ export default async function handler(req: Request) {
       contents: [{ role: "user", parts: [{ text: prompt }] }],
       generationConfig: {
         responseMimeType: "application/json",
-        temperature: 0.7,
+        temperature: 0.9,
       },
     });
 
