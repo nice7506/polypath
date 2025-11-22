@@ -7,18 +7,33 @@ import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Slider } from '@/components/ui/slider'
 import { useRoadmap } from '@/context/RoadmapContext'
+import { draftStrategies } from '@/lib/api'
 
 export default function Configuration() {
   const navigate = useNavigate()
-  const { setConfig } = useRoadmap()
+  const { setConfig, setStrategies, setRoadmapId } = useRoadmap()
   const [topic, setTopic] = useState('')
   const [level, setLevel] = useState<'Beginner' | 'Intermediate' | 'Advanced'>('Beginner')
   const [style, setStyle] = useState<string[]>(['Interactive'])
   const [hours, setHours] = useState<number[]>([20])
+  const [loading, setLoading] = useState(false)
+  const [error, setError] = useState<string | null>(null)
 
-  const handleDraft = () => {
-    setConfig({ topic, level, style, hours: hours[0] })
-    navigate('/select')
+  const handleDraft = async () => {
+    setError(null)
+    setLoading(true)
+    try {
+      const payload = { topic, level, style: style.join(', '), hours: hours[0] }
+      const data = await draftStrategies(payload)
+      setConfig(payload)
+      setStrategies(data.strategies || [])
+      setRoadmapId(data.roadmapId || null)
+      navigate('/select')
+    } catch (err: any) {
+      setError(err.message || 'Failed to generate strategies')
+    } finally {
+      setLoading(false)
+    }
   }
 
   const toggleStyle = (s: string) => {
@@ -99,10 +114,12 @@ export default function Configuration() {
 
             <Button
               onClick={handleDraft}
-              className="h-14 w-full bg-gradient-to-r from-cyan-500 to-purple-600 text-lg hover:from-cyan-400 hover:to-purple-500"
+              disabled={loading}
+              className="h-14 w-full bg-gradient-to-r from-cyan-500 to-purple-600 text-lg hover:from-cyan-400 hover:to-purple-500 disabled:opacity-50"
             >
-              <Rocket className="mr-2" /> Draft Strategies
+              <Rocket className="mr-2" /> {loading ? 'Drafting...' : 'Draft Strategies'}
             </Button>
+            {error && <p className="text-sm text-red-400">{error}</p>}
           </div>
         </div>
       </div>

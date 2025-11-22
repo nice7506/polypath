@@ -6,6 +6,7 @@ import Landing from './pages/landingPage'
 import Roadmap from './pages/Roadmap'
 import StrategyDeck from './pages/StrategyDeck'
 import { RoadmapProvider } from './context/RoadmapContext'
+import { AppLayout } from './components/AppLayout'
 
 function App() {
   return (
@@ -13,10 +14,38 @@ function App() {
       <RoadmapProvider>
         <Routes>
           <Route path="/" element={<Landing />} />
-          <Route path="/start" element={<Configuration />} />
-          <Route path="/select" element={<StrategyDeck />} />
-          <Route path="/realization" element={<AgentConsole />} />
-          <Route path="/roadmap" element={<Roadmap />} />
+          <Route
+            path="/start"
+            element={
+              <AppLayout>
+                <Configuration />
+              </AppLayout>
+            }
+          />
+          <Route
+            path="/select"
+            element={
+              <AppLayout>
+                <StrategyDeck />
+              </AppLayout>
+            }
+          />
+          <Route
+            path="/realization"
+            element={
+              <AppLayout>
+                <AgentConsole />
+              </AppLayout>
+            }
+          />
+          <Route
+            path="/roadmap"
+            element={
+              <AppLayout>
+                <Roadmap />
+              </AppLayout>
+            }
+          />
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
       </RoadmapProvider>

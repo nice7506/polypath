@@ -1,38 +1,27 @@
-// src/api/realize.ts
 import { Sandbox } from "@e2b/code-interpreter";
 import { createClient } from "@supabase/supabase-js";
 
-const supabase = createClient(process.env.SUPABASE_URL!, process.env.SUPABASE_ANON_KEY!);
+const supabase = createClient(process.env.SUPABASE_URL, process.env.SUPABASE_ANON_KEY);
 
 export const config = { runtime: "nodejs" };
 
-const json = (data: unknown, status = 200) =>
+const json = (data, status = 200) =>
   new Response(JSON.stringify(data), {
     status,
     headers: { "Content-Type": "application/json" },
   });
 
-type RealizeBody = {
-  roadmapId?: string;
-  strategy?: {
-    name?: string;
-    weeks?: number;
-    desc?: string;
-    [key: string]: unknown;
-  };
-};
-
-export default async function handler(req: Request) {
+export default async function handler(req) {
   if (req.method !== "POST") return new Response("Not allowed", { status: 405 });
 
-  let body: RealizeBody;
+  let body;
   try {
     body = await req.json();
   } catch {
     return json({ error: "Invalid JSON payload" }, 400);
   }
 
-  const { roadmapId, strategy } = body;
+  const { roadmapId, strategy } = body || {};
   if (!roadmapId || !strategy) {
     return json({ error: "Required: roadmapId and strategy" }, 400);
   }
@@ -42,28 +31,29 @@ export default async function handler(req: Request) {
     return json({ error: "Missing Supabase env vars" }, 500);
   }
 
-  const logs: string[] = [];
-  let config: any = null;
+  const logs = [];
+
+  let config = null;
 
   try {
+    // Try to fetch config/topic for richer roadmap content
     const { data: cfgRow, error: cfgErr } = await supabase.from("roadmaps").select("config").eq("id", roadmapId).single();
     if (!cfgErr && cfgRow?.config) {
       config = cfgRow.config;
     }
   } catch (err) {
-    logs.push(`Config fetch skipped: ${(err as any)?.message || err}`);
+    logs.push(`Config fetch skipped: ${err?.message || err}`);
   }
 
   try {
-    // Use base template because it ships with Docker installed.
-    // E2B caps timeout to 1 hour on this plan; request max allowed.
+    // E2B caps timeout to 1 hour for this plan; request the max allowed (60 minutes).
     const sandbox = await Sandbox.create("base", {
       timeoutMs: 1000 * 60 * 60,
     });
 
-    const sandboxId = (sandbox as any).sandboxId ?? (sandbox as any).id;
+    const sandboxId = sandbox.sandboxId || sandbox.id;
 
-    const addLogs = (prefix: string, text?: string) => {
+    const addLogs = (prefix, text) => {
       if (!text) return;
       text
         .split("\n")
@@ -71,16 +61,16 @@ export default async function handler(req: Request) {
         .forEach((line) => logs.push(`${prefix}${line}`));
     };
 
-    const runCmd = async (cmd: string, opts: Record<string, any> = {}) => {
+    const runCmd = async (cmd, opts = {}) => {
       try {
         const res = await sandbox.commands.run(cmd, opts);
         addLogs(`${cmd} stdout: `, res.stdout);
         addLogs(`${cmd} stderr: `, res.stderr);
         logs.push(`${cmd} exit: ${res.exitCode}`);
         return res;
-      } catch (err: any) {
-        const res =
-          err?.result || (err?.exitCode ? err : { exitCode: 1, stdout: "", stderr: String(err || "") });
+      } catch (err) {
+        // CommandExitError still has result; surface it
+        const res = err?.result || { exitCode: 1, stdout: "", stderr: String(err || "") };
         addLogs(`${cmd} stdout: `, res.stdout);
         addLogs(`${cmd} stderr: `, res.stderr);
         logs.push(`${cmd} exit: ${res.exitCode}`);
@@ -101,11 +91,12 @@ export default async function handler(req: Request) {
     const dockerRun = await runCmd("docker run --rm hello-world", { timeoutMs: 180_000 });
     const installDeps = await runCmd("pip install -q numpy matplotlib", { timeoutMs: 180_000 });
 
-    const buildRoadmap = (plan: any) => {
+    const buildRoadmap = (plan) => {
       const totalWeeks = Number(plan?.weeks) && plan.weeks > 0 ? plan.weeks : 4;
       const topic = config?.topic || "your topic";
       const level = config?.level || "Intermediate";
       const weeklyHours = config?.hours || 5;
+
       const baseResources = [
         {
           type: "video",
@@ -172,7 +163,7 @@ export default async function handler(req: Request) {
 
       if (roadmapUpdate.error) throw roadmapUpdate.error;
     } catch (dbError) {
-      logs.push(`Supabase update skipped/failed: ${(dbError as any)?.message || dbError}`);
+      logs.push(`Supabase update skipped/failed: ${dbError?.message || dbError}`);
     }
 
     const dockerOk = dockerRun.exitCode === 0;
@@ -184,17 +175,17 @@ export default async function handler(req: Request) {
       docker: dockerRun.stdout,
       logs,
       final_roadmap: finalRoadmap,
-      docker_error: dockerOk ? null : dockerRun.stderr || (dockerRun as any).error || "docker failed",
+      docker_error: dockerOk ? null : dockerRun.stderr || dockerRun.error || "docker failed",
       pip_exit: installDeps.exitCode,
     });
   } catch (error) {
     console.error("realize error", error);
-    logs.push(`Realize error: ${(error as any)?.message || error}`);
+    logs.push(`Realize error: ${error?.message || error}`);
     return json({
       success: false,
       message: "Failed to initialize sandbox",
       logs,
-      error: (error as any)?.message || String(error || ""),
+      error: error?.message || String(error || ""),
     });
   }
 }

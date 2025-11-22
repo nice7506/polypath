@@ -1,29 +1,21 @@
-// src/api/draft.ts
 import { GoogleGenerativeAI } from "@google/generative-ai";
 import { createClient } from "@supabase/supabase-js";
 
-const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY!);
-const supabase = createClient(process.env.SUPABASE_URL!, process.env.SUPABASE_ANON_KEY!);
+const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
+const supabase = createClient(process.env.SUPABASE_URL, process.env.SUPABASE_ANON_KEY);
 
 export const config = { runtime: "nodejs" };
 
-const json = (data: unknown, status = 200) =>
+const json = (data, status = 200) =>
   new Response(JSON.stringify(data), {
     status,
     headers: { "Content-Type": "application/json" },
   });
 
-type DraftBody = {
-  topic?: string;
-  level?: string;
-  style?: string;
-  hours?: number;
-};
-
-export default async function handler(req: Request) {
+export default async function handler(req) {
   if (req.method !== "POST") return new Response("Method Not Allowed", { status: 405 });
 
-  let body: DraftBody;
+  let body;
   try {
     body = await req.json();
   } catch {
@@ -42,7 +34,7 @@ export default async function handler(req: Request) {
   }
 
   try {
-    const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash-latest" });
+    const model = genAI.getGenerativeModel({ model: "gemini-flash-latest" });
     const prompt = `You are a 2025 coding mentor. Given a topic, output exactly 4 strategies as JSON.
 Each strategy must include: name, weeks (int), desc, and demoUrl (fake but plausible).
 Return ONLY JSON array, no prose.
@@ -62,7 +54,7 @@ Weekly Hours: ${hoursPerWeek}`;
       throw new Error("Gemini did not return strategies");
     }
 
-    let roadmapId: string | null = null;
+    let roadmapId = null;
     try {
       const { data, error } = await supabase
         .from("roadmaps")
@@ -75,7 +67,7 @@ Weekly Hours: ${hoursPerWeek}`;
         .single();
 
       if (error) throw error;
-      roadmapId = data?.id ?? null;
+      roadmapId = (data === null || data === void 0 ? void 0 : data.id) ?? null;
     } catch (dbError) {
       console.warn("Supabase insert skipped (table missing?):", dbError);
     }

@@ -3,32 +3,21 @@ import { useNavigate } from 'react-router-dom'
 
 import { useRoadmap } from '@/context/RoadmapContext'
 
-const fakeLogs = [
-  'Executing Agent...',
-  '> Initializing E2B Sandbox environment...',
-  '> Docker: Pulling image [poly-agent:latest]...',
-  '> Gemini: Identifying search targets...',
-  '> Agent: Visiting https://react.dev/learn...',
-  '[INFO] Page loaded successfully. Analyzing content.',
-  '> RAG: Embedding content... 128 chunks created.',
-  '> Process complete. Preparing results...',
-]
-
 export default function AgentConsole() {
   const navigate = useNavigate()
-  const { addLog, logs } = useRoadmap()
+  const { logs, sandboxId, isRealizing } = useRoadmap()
 
   useEffect(() => {
-    fakeLogs.forEach((log, i) => {
-      setTimeout(() => {
-        addLog(log)
-        if (i === fakeLogs.length - 1) {
-          setTimeout(() => navigate('/roadmap'), 2000)
-        }
-      }, i * 1200)
-    })
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [])
+    if (!sandboxId && !isRealizing) {
+      navigate('/start')
+    }
+  }, [sandboxId, isRealizing, navigate])
+
+  useEffect(() => {
+    if (sandboxId && !isRealizing) {
+      navigate('/roadmap')
+    }
+  }, [sandboxId, isRealizing, navigate])
 
   return (
     <div className="flex min-h-screen flex-col bg-black text-green-400">
@@ -52,9 +41,13 @@ export default function AgentConsole() {
             </div>
 
             <div className="mt-8 space-y-3">
-              {logs.map((log, i) => (
-                <div key={i}>{log}</div>
-              ))}
+              {logs.length ? (
+                logs.map((log, i) => <div key={i}>{log}</div>)
+              ) : (
+                <div className="text-gray-500">
+                  {isRealizing ? 'Initializing sandbox and streaming logs...' : 'Waiting for sandbox logs...'}
+                </div>
+              )}
               <div className="animate-pulse">█</div>
             </div>
           </div>
