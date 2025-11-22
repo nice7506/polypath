@@ -1,4 +1,4 @@
-import { useEffect, useMemo } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import {
   Pencil,
@@ -12,6 +12,8 @@ import {
   ShieldCheck,
   Map as MapIcon,
   Target,
+  FileText,
+  Share2,
 } from 'lucide-react'
 
 import { Button } from '@/components/ui/button'
@@ -29,7 +31,9 @@ export default function Roadmap() {
     selectedAgentId,
     setRoadmap,
     setSelectedAgentId,
+    roadmapId,
   } = useRoadmap()
+  const [copied, setCopied] = useState(false)
 
   useEffect(() => {
     if (!selectedStrategy) {
@@ -51,6 +55,18 @@ export default function Roadmap() {
     setSelectedAgentId(personaId)
     if (agent?.roadmap) {
       setRoadmap(agent.roadmap)
+    }
+  }
+
+  const handleShare = async () => {
+    if (!roadmapId || typeof window === 'undefined') return
+    const url = `${window.location.origin}/roadmap/${roadmapId}`
+    try {
+      await navigator.clipboard.writeText(url)
+      setCopied(true)
+      setTimeout(() => setCopied(false), 2000)
+    } catch {
+      setCopied(false)
     }
   }
   
@@ -110,6 +126,17 @@ export default function Roadmap() {
                   <Cpu className="h-4 w-4 text-purple-400" />
                   <span>{config?.level || "Intermediate"}</span>
                </div>
+               {roadmapId && (
+                 <Button
+                   variant="outline"
+                   size="sm"
+                   className="border-cyan-500/40 text-cyan-200 hover:bg-cyan-500/10 mt-2 md:mt-0"
+                   onClick={handleShare}
+                 >
+                   <Share2 className="h-4 w-4 mr-2" />
+                   {copied ? 'Link copied!' : 'Share roadmap'}
+                 </Button>
+               )}
             </div>
           </div>
         </div>
@@ -257,6 +284,26 @@ export default function Roadmap() {
               </div>
             )
           )}
+        </div>
+
+        {/* Resume CTA */}
+        <div className="mt-16 rounded-2xl border border-cyan-500/20 bg-cyan-500/5 p-6 flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+          <div>
+            <p className="text-xs uppercase tracking-widest text-cyan-300 font-semibold flex items-center gap-2">
+              <FileText className="h-4 w-4" /> Tailor Your Resume
+            </p>
+            <h3 className="text-xl font-bold text-white mt-2">Finish strong with a tailored resume</h3>
+            <p className="text-sm text-slate-300 mt-1">
+              Upload your resume and generate a role-ready version plus job matches.
+            </p>
+          </div>
+          <Button
+            size="lg"
+            className="bg-cyan-600 hover:bg-cyan-500 text-white font-semibold"
+            onClick={() => navigate('/dashboard?tab=resume')}
+          >
+            Go to Resume Workspace
+          </Button>
         </div>
 
         {/* Floating Action Button */}

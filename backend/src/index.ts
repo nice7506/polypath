@@ -9,6 +9,10 @@ import realizeHandler from './api/realize.js'
 import executeHandler from './api/execute.js'
 import refineHandler from './api/refine.js'
 import selectAgentHandler from './api/select-agent.js'
+import resumeUploadHandler from './api/resume-upload.js'
+import resumeGenerateHandler from './api/resume-generate.js'
+import jobSearchHandler from './api/jobs-search.js'
+import roadmapJobsHandler from './api/roadmap-jobs.js'
 
 type VercelHandler = (req: Request) => Promise<Response>
 
@@ -66,6 +70,10 @@ app.post('/api/realize', wrap(realizeHandler))
 app.post('/api/execute', wrap(executeHandler))
 app.post('/api/refine', wrap(refineHandler))
 app.post('/api/roadmaps/:id/select-agent', wrap(selectAgentHandler))
+app.post('/api/resume/upload', wrap(resumeUploadHandler))
+app.post('/api/resume/generate', wrap(resumeGenerateHandler))
+app.post('/api/jobs/search', wrap(jobSearchHandler))
+app.post('/api/roadmaps/:id/jobs', wrap(roadmapJobsHandler))
 
 // List roadmaps for a given user (dashboard)
 app.get('/api/my-roadmaps', async (req: any, res: any) => {
