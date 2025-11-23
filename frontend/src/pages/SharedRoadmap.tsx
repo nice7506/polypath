@@ -2,7 +2,8 @@ import { useEffect, useState } from 'react'
 import { useParams } from 'react-router-dom'
 import { CheckCircle2, PlayCircle, BookOpen, Code2, ExternalLink, Cpu, Calendar, Map as MapIcon, Target } from 'lucide-react'
 
-import { Background, PageContainer, SectionHeader, Card, StatPill } from '@/components/shared'
+import { PageContainer, SectionHeader, Card, StatPill } from '@/components/shared'
+import { Button } from '@/components/ui/button'
 import { fetchRoadmapById } from '@/lib/api'
 
 type RoadmapRow = {
@@ -18,6 +19,7 @@ export default function SharedRoadmap() {
   const [data, setData] = useState<RoadmapRow | null>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
+  const [copied, setCopied] = useState(false)
 
   useEffect(() => {
     if (!id) {
@@ -57,34 +59,52 @@ export default function SharedRoadmap() {
     return <ExternalLink className="h-5 w-5 text-gray-400" />
   }
 
+  const handleShare = async () => {
+    if (!data?.id || typeof window === 'undefined') return
+    const url = `${window.location.origin}/roadmap/${data.id}`
+    try {
+      await navigator.clipboard.writeText(url)
+      setCopied(true)
+      setTimeout(() => setCopied(false), 2000)
+    } catch {
+      setCopied(false)
+    }
+  }
+
   if (loading) {
     return (
-      <Background>
-        <PageContainer maxWidth="6xl">
-          <div className="flex min-h-[60vh] items-center justify-center text-slate-300 text-sm">
-            Loading shared roadmap…
+      <PageContainer maxWidth="6xl">
+        <div className="flex min-h-[60vh] items-center justify-center">
+          <div className="flex items-center gap-3 rounded-lg border border-white/10 bg-white/5 px-4 py-3 text-sm text-slate-300">
+            <svg className="h-5 w-5 animate-spin text-cyan-400" viewBox="0 0 24 24" fill="none">
+              <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+              <path
+                className="opacity-75"
+                fill="currentColor"
+                d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"
+              />
+            </svg>
+            <span>Loading shared roadmap…</span>
           </div>
-        </PageContainer>
-      </Background>
+        </div>
+      </PageContainer>
     )
   }
 
   if (error || !roadmap) {
     return (
-      <Background>
-        <PageContainer maxWidth="6xl">
-          <div className="flex min-h-[60vh] items-center justify-center">
-            <div className="rounded-lg border border-red-500/40 bg-red-500/10 px-6 py-4 text-sm text-red-200">
-              {error || 'Roadmap not found.'}
-            </div>
+      <PageContainer maxWidth="6xl">
+        <div className="flex min-h-[60vh] items-center justify-center">
+          <div className="rounded-lg border border-red-500/40 bg-red-500/10 px-6 py-4 text-sm text-red-200">
+            {error || 'Roadmap not found.'}
           </div>
-        </PageContainer>
-      </Background>
+        </div>
+      </PageContainer>
     )
   }
 
   return (
-    <Background>
+    <div className="text-slate-200">
       <PageContainer maxWidth="6xl" padding="md">
         <div className="mb-3 text-xs text-slate-400">
           Shared Roadmap · ID: <span className="font-mono text-slate-300">{data?.id}</span>
@@ -111,6 +131,14 @@ export default function SharedRoadmap() {
                   Sandbox: {sandboxId}
                 </StatPill>
               )}
+              <Button
+                variant="outline"
+                size="sm"
+                className="mt-3 inline-flex items-center gap-2 rounded-md border border-cyan-500/40 bg-cyan-500/10 px-3 py-2 text-[11px] font-semibold text-cyan-200 hover:bg-cyan-500/20 hover:text-white transition"
+                onClick={handleShare}
+              >
+                {copied ? 'Link copied!' : 'Share roadmap'}
+              </Button>
             </div>
           }
         />
@@ -208,6 +236,6 @@ export default function SharedRoadmap() {
           )}
         </div>
       </PageContainer>
-    </Background>
+    </div>
   )
 }

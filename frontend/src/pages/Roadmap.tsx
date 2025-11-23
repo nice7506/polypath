@@ -7,17 +7,14 @@ import {
   BookOpen,
   Code2,
   ExternalLink,
-  Calendar,
-  Cpu,
-  ShieldCheck,
   Map as MapIcon,
   Target,
   FileText,
-  Share2,
 } from 'lucide-react'
 
-import { Background, PageContainer, SectionHeader, Card, StatPill } from '@/components/shared'
+import { PageContainer, Card } from '@/components/shared'
 import { Button } from '@/components/ui/button'
+import { RoadmapHeader } from '@/components/roadmap'
 import { RoadmapFlow } from '@/components/RoadmapFlow'
 import { useRoadmap } from '@/context/RoadmapContext'
 
@@ -85,44 +82,22 @@ export default function Roadmap() {
   ]
 
   return (
-    <Background>
+    <div className="text-slate-200">
       <PageContainer maxWidth="6xl" padding="md">
         <div className="mb-10">
-          <SectionHeader
-            eyebrow={config?.goalAlignment || 'Skill Acquisition'}
+          <RoadmapHeader
+            goal={config?.goalAlignment}
             title={currentRoadmap?.title || selectedStrategy?.name || 'Your Learning Path'}
-            subtitle={
+            summary={
               currentRoadmap?.summary ||
               'A personalized curriculum designed to take you from concept to mastery, tailored to your hardware and schedule.'
             }
-            actions={
-              <div className="flex flex-wrap items-center gap-3">
-                {sandboxId && (
-                  <StatPill tone="emerald">
-                    <ShieldCheck className="h-3 w-3" /> Sandbox Active
-                  </StatPill>
-                )}
-                <StatPill tone="cyan">
-                  <Calendar className="h-4 w-4" />
-                  {config?.targetWeeks || currentRoadmap?.weeks?.length || selectedStrategy?.weeks || 4} Weeks
-                </StatPill>
-                <StatPill tone="purple">
-                  <Cpu className="h-4 w-4" />
-                  {config?.level || 'Intermediate'}
-                </StatPill>
-                {roadmapId && (
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    className="border-cyan-500/40 text-cyan-200 hover:bg-cyan-500/10"
-                    onClick={handleShare}
-                  >
-                    <Share2 className="h-4 w-4 mr-2" />
-                    {copied ? 'Link copied!' : 'Share roadmap'}
-                  </Button>
-                )}
-              </div>
-            }
+            weeks={config?.targetWeeks || currentRoadmap?.weeks?.length || selectedStrategy?.weeks || 4}
+            level={config?.level}
+            sandboxId={sandboxId}
+            showShare
+            onShare={roadmapId ? handleShare : null}
+            shareCopied={copied}
           />
         </div>
 
@@ -296,6 +271,6 @@ export default function Roadmap() {
           <Pencil className="h-6 w-6" />
         </Button>
       </PageContainer>
-    </Background>
+    </div>
   )
 }

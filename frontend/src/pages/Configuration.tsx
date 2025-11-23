@@ -16,7 +16,7 @@ import {
 } from 'lucide-react'
 import { useNavigate } from 'react-router-dom'
 
-import { Background, PageContainer, SectionHeader, Card } from '@/components/shared'
+import { PageContainer, SectionHeader, Card } from '@/components/shared'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { useRoadmap } from '@/context/RoadmapContext'
@@ -149,7 +149,7 @@ export default function Configuration() {
   }
 
   return (
-    <Background>
+    <div className="text-slate-200">
       <PageContainer maxWidth="5xl" padding="lg">
         <SectionHeader
           align="center"
@@ -352,6 +352,6 @@ export default function Configuration() {
           </p>
         </div>
       </PageContainer>
-    </Background>
+    </div>
   )
 }

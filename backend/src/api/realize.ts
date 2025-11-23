@@ -298,6 +298,11 @@ LEARNER PROFILE:
 - Desired Project Type: ${config?.projectType || "Portfolio-ready application"}
 - Hard Deadline: ${config?.deadline || "Flexible / none"}
 
+ABSOLUTE RULES:
+- Stay on the provided topic: "${topic}". Do NOT change, broaden, or swap the topic.
+- Personas should vary style, emphasis, and resource picks—but NOT the topic.
+- Prefer a mix of resource types (videos, courses, blogs) plus official docs; avoid only official docs.
+
 SELECTED STRATEGY (chosen earlier in the flow):
 - Strategy Name: ${strategy.name}
 - Strategy Description: ${strategy.desc}
@@ -324,7 +329,7 @@ INSTRUCTIONS:
 OUTPUT JSON FORMAT (NO prose, NO markdown):
 {
   "title": "string",
-  "summary": "string",
+  "summary": "string (keep topic ${topic})",
   "weeks": [
     {
       "week": number,
@@ -417,7 +422,7 @@ export default async function handler(req: Request) {
 
   // 2. PARALLEL EXECUTION: Run all external calls at once
   // We use allSettled so one failure doesn't stop the others
-  const searchQuery = `${topic} ${level} learning resources tutorials`;
+  const searchQuery = `${topic} ${level} best video course blog tutorials resources`;
   
   logs.push(`> Starting Multi-Source Search for: "${searchQuery}"`);
 
