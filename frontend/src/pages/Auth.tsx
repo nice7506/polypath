@@ -84,7 +84,7 @@ export default function AuthPage() {
             PolyPath Account
           </div>
           <h1 className="mt-4 text-3xl font-extrabold tracking-tight text-white md:text-4xl">
-            {mode === 'signin' ? 'Welcome back, agent.' : 'Create your PolyPath account.'}
+            {mode === 'signin' ? 'Welcome back, user.' : 'Create your PolyPath account.'}
           </h1>
           <p className="mt-2 max-w-md text-sm text-slate-400">
             {mode === 'signin'

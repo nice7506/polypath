@@ -1,27 +1,27 @@
 import { useState, type KeyboardEvent } from 'react'
-import { Cpu, Activity, Wallet, Clock, Monitor, Wrench, FolderGit2, Terminal, Calendar, Plus, X, ChevronRight, Sparkles } from 'lucide-react'
+import {
+  Cpu,
+  Activity,
+  Wallet,
+  Clock,
+  Monitor,
+  Wrench,
+  FolderGit2,
+  Terminal,
+  Calendar,
+  Plus,
+  X,
+  ChevronRight,
+  Sparkles,
+} from 'lucide-react'
 import { useNavigate } from 'react-router-dom'
 
+import { Background, PageContainer, SectionHeader, Card } from '@/components/shared'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { useRoadmap } from '@/context/RoadmapContext'
 import { draftStrategies } from '@/lib/api'
 import { useAuthStore } from '@/store/authStore'
-
-// --- ASSETS & STYLES ---
-const bgNoise = `url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)' opacity='0.05'/%3E%3C/svg%3E")`
-
-// --- COMPONENTS ---
-
-const SectionHeader = ({ title, subtitle }: { title: string; subtitle: string }) => (
-  <div className="mb-6 border-b border-white/10 pb-2">
-    <h3 className="text-lg font-bold text-white flex items-center gap-2">
-      <div className="h-1.5 w-1.5 rounded-full bg-cyan-500" />
-      {title}
-    </h3>
-    <p className="text-xs text-slate-400 ml-3.5">{subtitle}</p>
-  </div>
-)
 
 const TagInput = ({ tags, setTags, placeholder }: { tags: string[]; setTags: (t: string[]) => void; placeholder: string }) => {
   const [input, setInput] = useState('')
@@ -57,7 +57,7 @@ const TagInput = ({ tags, setTags, placeholder }: { tags: string[]; setTags: (t:
       <div className="flex flex-wrap gap-2 min-h-[32px]">
         {tags.length === 0 && <span className="text-xs text-slate-600 italic pt-1">No tools added yet...</span>}
         {tags.map((tag) => (
-          <span key={tag} className="inline-flex items-center gap-1 rounded-md bg-cyan-950/40 border border-cyan-500/30 px-2 py-1 text-xs font-medium text-cyan-300 animate-in fade-in zoom-in duration-200">
+          <span key={tag} className="inline-flex items-center gap-1 rounded-md bg-cyan-950/40 border border-cyan-500/30 px-2 py-1 text-xs font-medium text-cyan-300">
             {tag}
             <button onClick={() => removeTag(tag)} type="button" className="hover:text-white transition-colors">
               <X className="h-3 w-3" />
@@ -69,36 +69,31 @@ const TagInput = ({ tags, setTags, placeholder }: { tags: string[]; setTags: (t:
   )
 }
 
-const ConfigCard = ({ 
-  label, 
-  icon: Icon, 
+const ConfigCard = ({
+  label,
+  icon: Icon,
   children,
-  className = "" 
-}: { 
-  label: string, 
-  icon: any, 
-  children: React.ReactNode,
+  className = '',
+}: {
+  label: string
+  icon: any
+  children: React.ReactNode
   className?: string
 }) => (
-  <div className={`group relative flex flex-col gap-3 rounded-xl border border-white/5 bg-white/[0.02] p-5 transition-all duration-300 hover:bg-white/[0.04] hover:border-white/10 ${className}`}>
-    <div className="flex items-center gap-2 text-slate-400 group-hover:text-cyan-400 transition-colors">
+  <Card className={`flex flex-col gap-3 ${className}`}>
+    <div className="flex items-center gap-2 text-slate-400">
       <Icon className="h-4 w-4" />
       <span className="text-xs font-bold uppercase tracking-wider">{label}</span>
     </div>
-    <div className="relative z-10">
-      {children}
-    </div>
-  </div>
+    <div>{children}</div>
+  </Card>
 )
-
-// --- MAIN COMPONENT ---
 
 export default function Configuration() {
   const navigate = useNavigate()
   const { setConfig, setStrategies, setRoadmapId } = useRoadmap()
   const { user } = useAuthStore()
   
-  // State
   const [topic, setTopic] = useState('')
   const [level, setLevel] = useState<'Beginner' | 'Intermediate' | 'Advanced'>('Beginner')
   const [style, setStyle] = useState<string[]>(['Interactive'])
@@ -107,13 +102,9 @@ export default function Configuration() {
   const [goalAlignment, setGoalAlignment] = useState('')
   const [budget, setBudget] = useState('')
   const [deviceSpecs, setDeviceSpecs] = useState('')
-  
-  // Changed to array for better UX
   const [preferredTools, setPreferredTools] = useState<string[]>([]) 
-  
   const [projectType, setProjectType] = useState('')
   const [deadline, setDeadline] = useState('')
-  
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
@@ -137,7 +128,7 @@ export default function Configuration() {
         deviceSpecs,
         preferredTools: preferredTools.join(', '),
         projectType,
-        language: topic, // Defaulting language to topic if not specified separately
+        language: topic,
         deadline,
         userId: user?.id,
       }
@@ -158,38 +149,27 @@ export default function Configuration() {
   }
 
   return (
-    <div className="min-h-screen bg-[#020617] text-slate-200 font-sans selection:bg-cyan-500/30 relative overflow-x-hidden">
-      {/* Background Effects */}
-      <div className="absolute inset-0 pointer-events-none z-0" style={{ backgroundImage: bgNoise }}></div>
-      <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[800px] h-[500px] bg-purple-900/10 rounded-full blur-[120px] pointer-events-none"></div>
-      <div className="absolute bottom-0 right-0 w-[600px] h-[600px] bg-cyan-900/10 rounded-full blur-[120px] pointer-events-none"></div>
-      
-      <div className="relative z-10 container mx-auto px-4 py-12 max-w-5xl">
-        
-        {/* Header */}
-        <div className="mb-12 text-center space-y-4">
-          <div className="inline-block">
-            <span className="px-3 py-1 rounded-full border border-white/10 bg-white/5 text-[10px] font-mono text-slate-400 uppercase tracking-widest">
-              System Configuration v2.0
-            </span>
-          </div>
-          <h1 className="text-3xl md:text-5xl font-extrabold text-white tracking-tight">
-            Define Your <span className="text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-purple-500">Mission Parameters</span>
-          </h1>
-          <p className="text-slate-400 max-w-lg mx-auto text-sm md:text-base">
-            Fill in the details below. The more precise your inputs, the more accurate the Agentic Roadmap will be.
-          </p>
-        </div>
+    <Background>
+      <PageContainer maxWidth="5xl" padding="lg">
+        <SectionHeader
+          align="center"
+          eyebrow="System Configuration v2.0"
+          title={
+            <>
+              Define Your{' '}
+              <span className="text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-purple-500">
+                Mission Parameters
+              </span>
+            </>
+          }
+          subtitle="Fill in the details below. The more precise your inputs, the more accurate the Agentic Roadmap will be."
+        />
 
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-          
-          {/* --- LEFT COLUMN: THE CORE OBJECTIVE (Span 2) --- */}
+        <div className="mt-12 grid grid-cols-1 gap-8 lg:grid-cols-3">
           <div className="lg:col-span-2 space-y-8">
-            
-            {/* Hero Input: Topic */}
-            <div className="rounded-2xl border border-cyan-500/30 bg-gradient-to-b from-cyan-950/20 to-transparent p-6 md:p-8 shadow-[0_0_40px_rgba(8,145,178,0.1)]">
+            <Card className="border-cyan-500/30 bg-gradient-to-b from-cyan-950/20 to-transparent">
               <label className="block text-xs font-bold text-cyan-400 uppercase tracking-wider mb-3">
-                <Sparkles className="inline-block w-3 h-3 mr-1" /> 
+                <Sparkles className="inline-block w-3 h-3 mr-1" />
                 Primary Mission / Topic
               </label>
               <Input
@@ -199,13 +179,11 @@ export default function Configuration() {
                 onChange={(e) => setTopic(e.target.value)}
               />
               <p className="mt-3 text-xs text-slate-500">This is the main subject you want to master.</p>
-            </div>
+            </Card>
 
-            {/* Section 1: Goals & Context */}
             <div>
               <SectionHeader title="Mission Context" subtitle="What are you building and why?" />
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                
                 <ConfigCard label="Goal Alignment" icon={Activity}>
                   <Input
                     placeholder="e.g. Land a Senior Role"
@@ -225,188 +203,155 @@ export default function Configuration() {
                 </ConfigCard>
 
                 <ConfigCard label="Current Skill Level" icon={Terminal} className="md:col-span-2">
-                   <div className="grid grid-cols-3 gap-2">
+                  <div className="grid grid-cols-3 gap-2">
                     {(['Beginner', 'Intermediate', 'Advanced'] as const).map((l) => (
                       <button
                         key={l}
                         type="button"
                         onClick={() => setLevel(l)}
                         className={`rounded-lg text-xs font-bold py-3 border transition-all duration-200 ${
-                          level === l 
-                            ? 'bg-white text-black border-white shadow-lg' 
+                          level === l
+                            ? 'bg-white text-black border-white shadow-lg'
                             : 'bg-black/20 border-white/5 text-slate-500 hover:bg-white/5 hover:text-slate-300'
                         }`}
                       >
                         {l}
                       </button>
                     ))}
-                   </div>
+                  </div>
                 </ConfigCard>
               </div>
             </div>
 
-            {/* Section 2: Tech Stack */}
             <div>
               <SectionHeader title="Technical Environment" subtitle="Tools and preferences." />
               <div className="grid grid-cols-1 gap-4">
-                 <ConfigCard label="Tech Stack / Preferred Tools" icon={Wrench}>
-                    <TagInput 
-                      tags={preferredTools} 
-                      setTags={setPreferredTools} 
-                      placeholder="Type tool name (e.g. Docker) and press Enter..." 
-                    />
-                 </ConfigCard>
+                <ConfigCard label="Tech Stack / Preferred Tools" icon={Wrench}>
+                  <TagInput
+                    tags={preferredTools}
+                    setTags={setPreferredTools}
+                    placeholder="Type tool name (e.g. Docker) and press Enter..."
+                  />
+                </ConfigCard>
 
-                 <ConfigCard label="Learning Style" icon={Monitor}>
-                    <div className="flex flex-wrap gap-2">
-                      {['Video Course', 'Documentation', 'Interactive', 'Project-Based'].map((s) => (
-                        <button
-                          key={s}
-                          type="button"
-                          onClick={() => toggleStyle(s)}
-                          className={`px-3 py-1.5 rounded-full text-xs font-medium border transition-all ${
-                            style.includes(s)
-                              ? 'bg-purple-500/20 border-purple-500 text-purple-300'
-                              : 'bg-transparent border-slate-700 text-slate-400 hover:border-slate-500'
-                          }`}
-                        >
-                          {s}
-                        </button>
-                      ))}
-                    </div>
-                 </ConfigCard>
+                <ConfigCard label="Learning Style" icon={Monitor}>
+                  <div className="flex flex-wrap gap-2">
+                    {['Video Course', 'Documentation', 'Interactive', 'Project-Based'].map((s) => (
+                      <button
+                        key={s}
+                        type="button"
+                        onClick={() => toggleStyle(s)}
+                        className={`rounded-full border px-3 py-1 text-xs font-medium transition-all ${
+                          style.includes(s)
+                            ? 'border-cyan-500/60 bg-cyan-500/10 text-cyan-200'
+                            : 'border-white/10 bg-white/5 text-slate-300 hover:border-cyan-500/40 hover:text-cyan-200'
+                        }`}
+                      >
+                        {s}
+                      </button>
+                    ))}
+                  </div>
+                </ConfigCard>
               </div>
             </div>
 
+            <div>
+              <SectionHeader title="Time & Budget" subtitle="Constraints for planning." />
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <ConfigCard label="Weekly Hours" icon={Clock}>
+                  <Input
+                    type="number"
+                    min={1}
+                    max={80}
+                    value={hours[0]}
+                    onChange={(e) => setHours([Number(e.target.value)])}
+                    className="border-white/10 bg-black/20 focus:border-cyan-500/50"
+                  />
+                </ConfigCard>
+                <ConfigCard label="Target Weeks" icon={Calendar}>
+                  <Input
+                    type="number"
+                    min={1}
+                    max={52}
+                    value={targetWeeks}
+                    onChange={(e) => setTargetWeeks(Number(e.target.value))}
+                    className="border-white/10 bg-black/20 focus:border-cyan-500/50"
+                  />
+                </ConfigCard>
+                <ConfigCard label="Budget" icon={Wallet}>
+                  <Input
+                    placeholder="e.g. $0, $200"
+                    value={budget}
+                    onChange={(e) => setBudget(e.target.value)}
+                    className="border-white/10 bg-black/20 focus:border-cyan-500/50"
+                  />
+                </ConfigCard>
+                <ConfigCard label="Deadline" icon={Calendar}>
+                  <Input
+                    placeholder="Optional deadline"
+                    value={deadline}
+                    onChange={(e) => setDeadline(e.target.value)}
+                    className="border-white/10 bg-black/20 focus:border-cyan-500/50"
+                  />
+                </ConfigCard>
+              </div>
+            </div>
           </div>
 
-          {/* --- RIGHT COLUMN: LOGISTICS (Span 1) --- */}
-          <div className="space-y-8">
-             
-             {/* Logistics Panel */}
-             <div className="rounded-2xl border border-white/5 bg-white/[0.02] p-6 h-full">
-                <SectionHeader title="Logistics" subtitle="Constraints & Hardware." />
-                
-                <div className="space-y-6">
-                  {/* Time */}
-                  <div className="space-y-3">
-                    <div className="flex justify-between items-center text-xs">
-                       <span className="text-slate-400 flex items-center gap-1"><Clock className="w-3 h-3"/> Time/Week</span>
-                       <span className="text-cyan-400 font-mono bg-cyan-950/30 px-2 py-0.5 rounded border border-cyan-500/20">{hours[0]}h</span>
-                    </div>
-                    <select
-                      className="w-full rounded-md border border-white/10 bg-black/30 px-3 py-2 text-xs text-slate-200 focus:outline-none focus:ring-2 focus:ring-cyan-500/40 focus:border-cyan-500/60"
-                      value={hours[0]}
-                      onChange={(e) => setHours([Number(e.target.value)])}
-                    >
-                      {[5, 10, 15, 20, 25, 30, 40].map((h) => (
-                        <option key={h} value={h}>
-                          {h} hours / week
-                        </option>
-                      ))}
-                    </select>
-                  </div>
+          <div className="space-y-6">
+            <ConfigCard label="Hardware / Device" icon={Monitor}>
+              <Input
+                placeholder="e.g. M1 Air, 16GB RAM"
+                value={deviceSpecs}
+                onChange={(e) => setDeviceSpecs(e.target.value)}
+                className="border-white/10 bg-black/20 focus:border-cyan-500/50"
+              />
+            </ConfigCard>
 
-                  {/* Budget */}
-                  <div className="space-y-2">
-                     <label className="text-xs text-slate-400 flex items-center gap-1"><Wallet className="w-3 h-3"/> Budget</label>
-                     <div className="relative">
-                        <span className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-500 text-sm">$</span>
-                        <Input
-                          placeholder="0-100/mo"
-                          className="pl-6 border-white/10 bg-black/20 text-sm"
-                          value={budget}
-                          onChange={(e) => setBudget(e.target.value)}
-                        />
-                     </div>
-                  </div>
-
-                  {/* Deadline */}
-                  <div className="space-y-2">
-                     <label className="text-xs text-slate-400 flex items-center gap-1"><Calendar className="w-3 h-3"/> Deadline</label>
-                     <Input
-                        placeholder="e.g. 3 Months"
-                        className="border-white/10 bg-black/20 text-sm"
-                        value={deadline}
-                        onChange={(e) => setDeadline(e.target.value)}
-                      />
-                  </div>
-
-                  {/* Target Duration (Weeks) */}
-                  <div className="space-y-2">
-                     <label className="text-xs text-slate-400 flex items-center gap-1">
-                       <Calendar className="w-3 h-3"/> Target Duration
-                     </label>
-                     <select
-                       className="w-full rounded-md border border-white/10 bg-black/30 px-3 py-2 text-xs text-slate-200 focus:outline-none focus:ring-2 focus:ring-cyan-500/40 focus:border-cyan-500/60"
-                       value={targetWeeks}
-                       onChange={(e) => setTargetWeeks(Number(e.target.value))}
-                     >
-                       {[4, 8, 12, 16, 24].map((w) => (
-                         <option key={w} value={w}>
-                           {w} weeks
-                         </option>
-                       ))}
-                     </select>
-                  </div>
-
-                  {/* Device */}
-                  <div className="space-y-2">
-                     <label className="text-xs text-slate-400 flex items-center gap-1"><Cpu className="w-3 h-3"/> Hardware</label>
-                     <select
-                        className="w-full rounded-md border border-white/10 bg-black/30 px-3 py-2 text-xs text-slate-200 focus:outline-none focus:ring-2 focus:ring-cyan-500/40 focus:border-cyan-500/60"
-                        value={deviceSpecs}
-                        onChange={(e) => setDeviceSpecs(e.target.value)}
-                      >
-                        <option value="">Select hardware profile</option>
-                        <option value="High-end laptop (16GB+ RAM, dedicated GPU)">
-                          High-end laptop (16GB+ RAM, GPU)
-                        </option>
-                        <option value="Standard laptop (8–16GB RAM, modern CPU)">
-                          Standard laptop (8–16GB RAM)
-                        </option>
-                        <option value="Low-spec laptop / Chromebook (≤8GB RAM)">
-                          Low-spec laptop / Chromebook (≤8GB RAM)
-                        </option>
-                        <option value="Cloud-only environment (no local dev tools)">
-                          Cloud-only (no local dev tools)
-                        </option>
-                      </select>
-                  </div>
+            <ConfigCard label="Hours & Schedule" icon={Clock}>
+              <div className="space-y-3 text-sm">
+                <div className="flex items-center gap-2 text-slate-400">
+                  <Cpu className="h-4 w-4 text-cyan-400" />
+                  <span>{hours[0]} hrs/week target</span>
                 </div>
-             </div>
+                <div className="flex items-center gap-2 text-slate-400">
+                  <Calendar className="h-4 w-4 text-purple-400" />
+                  <span>{targetWeeks} weeks total</span>
+                </div>
+              </div>
+            </ConfigCard>
 
-             {/* Submit Action */}
-             <div className="sticky top-6">
-               {error && (
-                  <div className="mb-4 p-3 rounded-lg bg-red-500/10 border border-red-500/20 text-red-400 text-xs text-center">
-                    {error}
-                  </div>
-               )}
-               <Button
-                  onClick={handleDraft}
-                  disabled={loading}
-                  className="w-full h-14 rounded-xl bg-gradient-to-r from-cyan-600 to-blue-600 hover:from-cyan-500 hover:to-blue-500 text-white font-bold text-lg shadow-lg shadow-cyan-500/20 transition-all hover:scale-[1.02] hover:shadow-cyan-500/40 disabled:opacity-50 disabled:hover:scale-100"
-                >
-                  {loading ? (
-                     <span className="flex items-center gap-2">
-                       <span className="h-4 w-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-                       Processing...
-                     </span>
-                  ) : (
-                     <span className="flex items-center gap-2">
-                       Generate Roadmap <ChevronRight className="w-5 h-5" />
-                     </span>
-                  )}
-               </Button>
-               <p className="mt-4 text-center text-[10px] text-slate-600 font-mono">
-                  EST. GENERATION TIME: 15-30 SECONDS
-               </p>
-             </div>
+            <ConfigCard label="Deployment Target" icon={FolderGit2}>
+              <Input
+                placeholder="e.g. GitHub repo or production"
+                className="border-white/10 bg-black/20 focus:border-cyan-500/50"
+              />
+            </ConfigCard>
 
+            <ConfigCard label="Constraints Overview" icon={Cpu}>
+              <p className="text-sm text-slate-400">
+                We will tailor recommendations to your device and budget, preferring lightweight tools where necessary.
+              </p>
+            </ConfigCard>
           </div>
         </div>
-      </div>
-    </div>
+
+        <div className="mt-10 flex flex-col items-center gap-4">
+          <Button
+            size="lg"
+            className="h-12 w-full max-w-md bg-gradient-to-r from-cyan-600 to-blue-600 text-white font-semibold shadow-cyan-500/30 hover:from-cyan-500 hover:to-blue-500"
+            onClick={handleDraft}
+            disabled={loading}
+          >
+            {loading ? 'Generating strategies...' : 'Generate Strategies'}
+          </Button>
+          {error && <p className="text-xs text-red-400">{error}</p>}
+          <p className="text-[10px] uppercase tracking-widest text-slate-500 flex items-center gap-2">
+            <ChevronRight className="h-3 w-3" />
+            <span>Data is stored securely for your session.</span>
+          </p>
+        </div>
+      </PageContainer>
+    </Background>
   )
 }

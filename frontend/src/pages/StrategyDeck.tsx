@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { Clock, Target, Zap, ArrowRight, Sparkles, ExternalLink } from 'lucide-react'
 
+import { Background, PageContainer, SectionHeader, Card, StatPill } from '@/components/shared'
 import { Button } from '@/components/ui/button'
 import { useRoadmap } from '@/context/RoadmapContext'
 import { realizeSandbox } from '@/lib/api'
@@ -99,44 +100,26 @@ export default function StrategyDeck() {
   }
 
   return (
-    <div className="min-h-screen w-full bg-[#0b0f1a] text-white selection:bg-cyan-500/30">
-      {/* Background Gradients */}
-      <div className="fixed inset-0 z-0 pointer-events-none">
-        <div className="absolute top-0 left-1/4 h-96 w-96 rounded-full bg-cyan-900/20 blur-[128px]" />
-        <div className="absolute bottom-0 right-1/4 h-96 w-96 rounded-full bg-purple-900/10 blur-[128px]" />
-      </div>
+    <Background>
+      <PageContainer maxWidth="6xl" padding="lg" className="flex flex-col items-center">
+        <SectionHeader
+          align="center"
+          eyebrow="Selection"
+          title="Choose Your Path"
+          subtitle={`We've analyzed your goal of ${config?.goalAlignment || 'learning'}. Select the strategy that best fits your schedule and learning style.`}
+        />
 
-      <div className="relative z-10 flex flex-col items-center p-6 md:p-12">
-        
-        {/* Breadcrumbs / Header */}
-        <div className="mb-12 w-full max-w-6xl text-center">
-          <div className="mb-4 flex items-center justify-center gap-2 text-xs font-medium tracking-widest text-gray-500 uppercase">
-            <span className="text-gray-600">Config</span>
-            <ArrowRight className="h-3 w-3" />
-            <span className="text-cyan-400">Selection</span>
-            <ArrowRight className="h-3 w-3" />
-            <span className="text-gray-600">Realization</span>
-          </div>
-          
-          <h1 className="mb-4 text-4xl font-bold tracking-tight md:text-6xl">
-            Choose Your Path
-          </h1>
-          <p className="mx-auto max-w-2xl text-lg text-gray-400">
-            We've analyzed your goal of <span className="text-gray-200 font-medium">{config?.goalAlignment || "learning"}</span>. 
-            Select the strategy that best fits your schedule and learning style.
-          </p>
-        </div>
-
-        {/* Cards Grid */}
-        <div className="grid w-full max-w-6xl grid-cols-1 gap-6 md:grid-cols-2 xl:grid-cols-2">
+        <div className="mt-12 grid w-full grid-cols-1 gap-6 md:grid-cols-2 xl:grid-cols-2">
           {strategies.map((strategy, idx) => {
             const theme = getCardTheme(idx)
             const Icon = theme.icon
 
             return (
-              <div
+              <Card
                 key={strategy.name}
-                className={`group relative flex flex-col justify-between rounded-2xl border border-white/10 bg-white/[0.02] p-8 backdrop-blur-sm transition-all duration-300 ${theme.border} hover:-translate-y-1 hover:shadow-2xl ${theme.glow}`}
+                hover
+                padding="lg"
+                className={`group relative flex flex-col justify-between ${theme.border} ${theme.glow}`}
               >
                 {/* Card Header */}
                 <div>
@@ -162,12 +145,12 @@ export default function StrategyDeck() {
 
                   {/* Metadata Tags */}
                   <div className="mb-8 flex flex-wrap gap-2">
-                    <div className="inline-flex items-center rounded-md border border-white/5 bg-white/5 px-2.5 py-0.5 text-xs font-medium text-gray-300">
+                    <StatPill tone="neutral" className="text-xs">
                       {config?.style || "General"}
-                    </div>
-                    <div className="inline-flex items-center rounded-md border border-white/5 bg-white/5 px-2.5 py-0.5 text-xs font-medium text-gray-300">
+                    </StatPill>
+                    <StatPill tone="neutral" className="text-xs">
                       {config?.level || "Beginner"}
-                    </div>
+                    </StatPill>
                     {strategy.demoUrl && (
                       <a 
                         href={strategy.demoUrl} 
@@ -201,7 +184,7 @@ export default function StrategyDeck() {
                     </span>
                   )}
                 </Button>
-              </div>
+              </Card>
             )
           })}
         </div>
@@ -212,7 +195,7 @@ export default function StrategyDeck() {
             <span className="font-bold">Error:</span> {error}
           </div>
         )}
-      </div>
-    </div>
+      </PageContainer>
+    </Background>
   )
 }
