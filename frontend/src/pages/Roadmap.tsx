@@ -48,6 +48,10 @@ export default function Roadmap() {
 
   const currentRoadmap = (activeAgent?.roadmap as any) || roadmap
   const weeks = currentRoadmap?.weeks || []
+  const resourceCount = (weeks || []).reduce(
+    (count: number, w: any) => count + ((w.resources as any[])?.length || 0),
+    0,
+  )
 
   const handlePersonaClick = (personaId: string, agent: any) => {
     setSelectedAgentId(personaId)
@@ -67,9 +71,9 @@ export default function Roadmap() {
       setCopied(false)
     }
   }
-  
-  const getResourceIcon = (type: string) => {
-    const t = type.toLowerCase()
+
+  const getResourceIcon = (type?: string) => {
+    const t = (type || '').toLowerCase()
     if (t.includes('video') || t.includes('youtube')) return <PlayCircle className="h-5 w-5 text-red-400" />
     if (t.includes('doc') || t.includes('article')) return <BookOpen className="h-5 w-5 text-blue-400" />
     if (t.includes('project') || t.includes('repo')) return <Code2 className="h-5 w-5 text-purple-400" />
@@ -94,6 +98,13 @@ export default function Roadmap() {
             }
             weeks={config?.targetWeeks || currentRoadmap?.weeks?.length || selectedStrategy?.weeks || 4}
             level={config?.level}
+            hoursPerWeek={config?.hours}
+            budget={config?.budget}
+            deadline={config?.deadline}
+            style={config?.style}
+            projectType={config?.projectType}
+            preferredTools={config?.preferredTools}
+            resourceCount={resourceCount}
             sandboxId={sandboxId}
             showShare
             onShare={roadmapId ? handleShare : null}

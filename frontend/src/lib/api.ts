@@ -113,3 +113,24 @@ export async function executeCode(payload: { sandboxId: string; code: string }) 
     body: payload,
   });
 }
+
+export async function uploadResume(payload: { userId: string; fileUrl: string }) {
+  return request<{ resumeId: string | null; parsedText: string; logs?: string[]; sandboxId?: string | null }>({
+    path: '/api/resume/upload',
+    body: payload,
+  })
+}
+
+export async function generateResume(payload: { userId: string; role: string; location?: string; keywords?: string[] }) {
+  return request<{ pdfBase64?: string; latex?: string; logs?: string[]; sandboxId?: string | null }>({
+    path: '/api/resume/generate',
+    body: payload,
+  })
+}
+
+export async function searchJobs(payload: { userId: string; role: string; location?: string; keywords?: string[] }) {
+  return request<{ results?: any[]; logs?: string[]; sandboxId?: string | null }>({
+    path: '/api/jobs/search',
+    body: payload,
+  })
+}
